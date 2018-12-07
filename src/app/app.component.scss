@@ -1,0 +1,25 @@
+.sb-main-drawer{
+    height: 100%;
+} 
+
+.sb-sidenav-drawer {
+    height: 100%;
+    padding: 10px;
+} 
+
+.sb-main-content {
+    display: flex;
+    height: 100%;
+    padding: 10px;
+}
+
+.app-main-container {
+    display: table;
+    height: 100%;
+    margin: 0 auto;
+}
+
+.app-login-parent-container {
+    display: table-cell;
+    vertical-align: middle;
+}

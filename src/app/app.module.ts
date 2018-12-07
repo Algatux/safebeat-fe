@@ -1,18 +1,13 @@
-import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
-import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { ModuleImports } from './Configuration/module-imports';
+import { ComponentDeclaration } from './Configuration/component-declaration';
 
 @NgModule({
-  declarations: [
-    AppComponent
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule
-  ],
+  declarations: ComponentDeclaration.declare(),
+  imports: ModuleImports.imports(),
   providers: [],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class SafebeatAppModule { }
