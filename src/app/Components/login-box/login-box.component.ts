@@ -1,5 +1,8 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { MatSlideToggleChange } from '@angular/material';
+import { AuthenticationService } from 'src/app/Services/authentication.service';
+import { Router } from '@angular/router';
+import { LoggerService } from 'src/app/Services/logger.service';
 
 @Component({
   selector: 'app-login-box',
@@ -13,24 +16,32 @@ export class LoginBoxComponent implements OnInit {
 
   rememberMe: boolean = false;
 
-  constructor() { }
+  constructor(
+    private authentication: AuthenticationService,
+    private router: Router,
+    private logger: LoggerService
+    ) { }
 
-  ngOnInit() { }
+  ngOnInit() {
+    if (this.authentication.isUserAuthenticated()) {
+      this.router.navigate(['']);
+    }
+  }
 
   onRememberMeToggled(event: MatSlideToggleChange) {
     this.rememberMe = event.checked;
   }
 
   onAccountLogin() {
-    console.log('attempting account login');
+    this.logger.write('attempting account login');
     const username: string = this.username.nativeElement.value;
     const password: string = this.password.nativeElement.value;
 
-    console.log(`Using username: '${username}' and password: '${password}' with cookie: ${this.rememberMe ? 'yes' : 'no'}`);
+    this.logger.write(`Using username: '${username}' and password: '${password}' with cookie: ${this.rememberMe ? 'yes' : 'no'}`);
   }
 
   onSocialLogin(social: string) {
-    console.log(`attemptinbg social ${social} login`);
+    this.logger.write(`attemptinbg social ${social} login`);
   }
 
 }

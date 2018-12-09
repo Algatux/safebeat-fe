@@ -1,4 +1,15 @@
 
+.app-main-container {
+    display: table;
+    height: 100%;
+    margin: 0 auto;
+}
+
+.app-login-parent-container {
+    display: table-cell;
+    vertical-align: middle;
+}
+
 .mat-card {
     width: 400px;
 }

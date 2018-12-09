@@ -1,17 +1,13 @@
-<!-- <mat-sidenav-container class="sb-main-drawer">
 
-    <mat-sidenav opened disableClose mode="side" class="sb-sidenav-drawer">
+<mat-sidenav-container class="sb-main-drawer m-l-0">
+
+    <mat-sidenav [opened]="isSidebarVisible" disableClose mode="side" class="sb-sidenav-drawer">
             <app-sidenav></app-sidenav>
     </mat-sidenav>
 
     <mat-sidenav-content class="sb-main-content">
-        Content
+        <router-outlet></router-outlet>
     </mat-sidenav-content>
+    
+</mat-sidenav-container>
 
-</mat-sidenav-container> -->
-
-<div class="app-main-container">
-    <div class="app-login-parent-container">
-        <app-login-box></app-login-box>
-    </div>
-</div>

@@ -1,35 +1,37 @@
+<div class="app-main-container">
+  <div class="app-login-parent-container">
+    <mat-card>
 
-<mat-card>
+        <mat-card-header>
+          <div mat-card-avatar class="example-header-image"></div>
+          <mat-card-title>safebeat</mat-card-title>
+          <mat-card-subtitle>Effettua il login</mat-card-subtitle>
+        </mat-card-header>
 
-    <mat-card-header>
-      <div mat-card-avatar class="example-header-image"></div>
-      <mat-card-title>safebeat</mat-card-title>
-      <mat-card-subtitle>Effettua il login</mat-card-subtitle>
-    </mat-card-header>
+        <img mat-card-image 
+          src="https://viraldazed.com/wp-content/uploads/2017/08/transplant-organs-pig-to-human.jpeg"
+        />
+      
+        <mat-card-content>
+            <mat-form-field class="width-100">
+              <input matInput type="text" placeholder="Username" #loginInputUsername />
+            </mat-form-field>
+            <mat-form-field  class="width-100">
+              <input matInput type="password" placeholder="Password" #loginInputPassword />
+            </mat-form-field>
+            <mat-slide-toggle class="m-t-5" 
+            [checked]="rememberMe"
+            (change)="onRememberMeToggled($event)" >Remember me!</mat-slide-toggle>
+        </mat-card-content>
 
-    <img mat-card-image 
-      src="https://viraldazed.com/wp-content/uploads/2017/08/transplant-organs-pig-to-human.jpeg"
-    />
-  
-    <mat-card-content>
-        <mat-form-field class="width-100">
-          <input matInput type="text" placeholder="Username" #loginInputUsername />
-        </mat-form-field>
-        <mat-form-field  class="width-100">
-          <input matInput type="password" placeholder="Password" #loginInputPassword />
-        </mat-form-field>
-        <mat-slide-toggle class="m-t-5" 
-        [checked]="rememberMe"
-        (change)="onRememberMeToggled($event)" >Remember me!</mat-slide-toggle>
-    </mat-card-content>
-
-    <mat-card-actions class="items-centering m-t-15 m-b-15">
-      <button mat-raised-button (click)="onAccountLogin()">Login</button>
-      <div class="m-l-40">
-          <button mat-raised-button color="accent" (click)="onSocialLogin('google')"><i class="fab fa-google"></i></button>
-          <button mat-raised-button color="primary" (click)="onSocialLogin('facebook')"><i class="fab fa-facebook-f"></i></button>
-      </div>
-    </mat-card-actions>
-  
-  </mat-card>
-
+        <mat-card-actions class="items-centering m-t-15 m-b-15">
+          <button mat-raised-button (click)="onAccountLogin()">Login</button>
+          <div class="m-l-40">
+              <button mat-raised-button color="accent" (click)="onSocialLogin('google')"><i class="fab fa-google"></i></button>
+              <button mat-raised-button color="primary" (click)="onSocialLogin('facebook')"><i class="fab fa-facebook-f"></i></button>
+          </div>
+        </mat-card-actions>
+      
+    </mat-card>
+  </div>
+</div>
