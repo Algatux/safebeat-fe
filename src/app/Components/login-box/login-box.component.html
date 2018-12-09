@@ -13,19 +13,21 @@
   
     <mat-card-content>
         <mat-form-field class="width-100">
-          <input matInput type="text" placeholder="Username">
+          <input matInput type="text" placeholder="Username" #loginInputUsername />
         </mat-form-field>
         <mat-form-field  class="width-100">
-          <input matInput type="password" placeholder="Password">
+          <input matInput type="password" placeholder="Password" #loginInputPassword />
         </mat-form-field>
-        <mat-slide-toggle [checked]="rememberMe" class="m-t-5">Remember me!</mat-slide-toggle>
+        <mat-slide-toggle class="m-t-5" 
+        [checked]="rememberMe"
+        (change)="onRememberMeToggled($event)" >Remember me!</mat-slide-toggle>
     </mat-card-content>
 
     <mat-card-actions class="items-centering m-t-15 m-b-15">
-      <button mat-raised-button>Login</button>
+      <button mat-raised-button (click)="onAccountLogin()">Login</button>
       <div class="m-l-40">
-          <button mat-raised-button color="accent"><i class="fab fa-google"></i></button>
-          <button mat-raised-button color="primary"><i class="fab fa-facebook-f"></i></button>
+          <button mat-raised-button color="accent" (click)="onSocialLogin('google')"><i class="fab fa-google"></i></button>
+          <button mat-raised-button color="primary" (click)="onSocialLogin('facebook')"><i class="fab fa-facebook-f"></i></button>
       </div>
     </mat-card-actions>
   
