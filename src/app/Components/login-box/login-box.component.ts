@@ -42,6 +42,7 @@ export class LoginBoxComponent implements OnInit {
 
   onSocialLogin(social: string) {
     this.logger.write(`attemptinbg social ${social} login`);
+    this.authentication.tryGoogleSignIn();
   }
 
 }

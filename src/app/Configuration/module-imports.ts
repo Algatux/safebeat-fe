@@ -12,6 +12,7 @@ import {
     MatGridListModule,
 } from '@angular/material';
 import { LayoutModule } from '@angular/cdk/layout';
+import { SocialLoginModule, AuthServiceConfig, GoogleLoginProvider } from 'angularx-social-login';
 
 export class ModuleImports {
     public static imports(): Array<any> {
@@ -28,7 +29,9 @@ export class ModuleImports {
             MatInputModule,
             MatButtonModule,
             MatSlideToggleModule,
-            MatGridListModule
+            MatGridListModule,
+            SocialLoginModule
+
         ];
     }
 }
