@@ -13,6 +13,7 @@ import {
 } from '@angular/material';
 import { LayoutModule } from '@angular/cdk/layout';
 import { SocialLoginModule, AuthServiceConfig, GoogleLoginProvider } from 'angularx-social-login';
+import { HttpClientModule } from '@angular/common/http';
 
 export class ModuleImports {
     public static imports(): Array<any> {
@@ -21,6 +22,8 @@ export class ModuleImports {
             AppRoutingModule,
             BrowserModule,
             BrowserAnimationsModule,
+            HttpClientModule,
+
             LayoutModule,
             MatToolbarModule,
             MatSidenavModule,

@@ -5,6 +5,9 @@
 /tmp
 /out-tsc
 
+# configurations
+/src/assets/config.json
+
 # dependencies
 /node_modules
 

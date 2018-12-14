@@ -1,6 +1,7 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { AuthenticationService } from './Services/authentication.service';
 import { Router } from '@angular/router';
+import { ConfigurationService } from './Configuration/configuration.service';
 
 @Component({
   selector: 'app-root',
@@ -14,6 +15,7 @@ export class AppComponent implements OnInit {
   private isUserAuthenticated: boolean = false;
 
   constructor(
+    private config: ConfigurationService,
     private authentication: AuthenticationService,
     private router: Router
   ) {}
