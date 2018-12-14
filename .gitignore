@@ -6,7 +6,7 @@
 /out-tsc
 
 # configurations
-/src/assets/config.json
+/src/environments/environment.prod.ts
 
 # dependencies
 /node_modules
