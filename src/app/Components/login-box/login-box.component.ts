@@ -1,8 +1,9 @@
-import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
-import { MatSlideToggleChange } from '@angular/material';
-import { AuthenticationService } from 'src/app/Services/authentication.service';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { LoggerService } from 'src/app/Services/logger.service';
+
+import { AuthenticationService } from '../../Services/Authentication/authentication.service';
+import { LoggerService } from '../../Services/logger.service';
+import { Credentials } from '../../Services/Authentication/credentials.model';
 
 @Component({
   selector: 'app-login-box',
@@ -11,16 +12,15 @@ import { LoggerService } from 'src/app/Services/logger.service';
 })
 export class LoginBoxComponent implements OnInit {
 
-  @ViewChild('loginInputUsername') username: ElementRef;
-  @ViewChild('loginInputPassword') password: ElementRef;
-
-  rememberMe: boolean = false;
+  credentials: Credentials;
 
   constructor(
     private authentication: AuthenticationService,
     private router: Router,
     private logger: LoggerService
-    ) { }
+    ) {
+      this.credentials = new Credentials;
+    }
 
   ngOnInit() {
     if (this.authentication.isUserAuthenticated()) {
@@ -28,16 +28,10 @@ export class LoginBoxComponent implements OnInit {
     }
   }
 
-  onRememberMeToggled(event: MatSlideToggleChange) {
-    this.rememberMe = event.checked;
-  }
-
-  onAccountLogin() {
+  onSubmit() {
     this.logger.write('attempting account login');
-    const username: string = this.username.nativeElement.value;
-    const password: string = this.password.nativeElement.value;
-
-    this.logger.write(`Using username: '${username}' and password: '${password}' with cookie: ${this.rememberMe ? 'yes' : 'no'}`);
+    this.authentication.authenticate(this.credentials);
+    // auth with http request
   }
 
   onSocialLogin(social: string) {

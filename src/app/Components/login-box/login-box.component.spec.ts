@@ -8,7 +8,7 @@ import {
   MatSlideToggleModule,
   MatCardModule
 } from '@angular/material';
-import { AuthenticationService } from 'src/app/Services/authentication.service';
+import { AuthenticationService } from 'src/app/Services/Authentication/authentication.service';
 import { LoggerService } from 'src/app/Services/logger.service';
 import { Router } from '@angular/router';
 import { AuthService } from 'angularx-social-login';

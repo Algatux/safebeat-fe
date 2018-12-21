@@ -14,6 +14,7 @@ import {
 import { LayoutModule } from '@angular/cdk/layout';
 import { SocialLoginModule, AuthServiceConfig, GoogleLoginProvider } from 'angularx-social-login';
 import { HttpClientModule } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 
 export class ModuleImports {
     public static imports(): Array<any> {
@@ -23,6 +24,7 @@ export class ModuleImports {
             BrowserModule,
             BrowserAnimationsModule,
             HttpClientModule,
+            FormsModule,
 
             LayoutModule,
             MatToolbarModule,

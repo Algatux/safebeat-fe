@@ -10,4 +10,8 @@ export class LoggerService {
   write(message: string): void {
     console.log(message);
   }
+
+  log(object: Object): void {
+    console.log(object);
+  }
 }
