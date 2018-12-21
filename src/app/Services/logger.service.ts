@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -7,11 +8,13 @@ export class LoggerService {
 
   constructor() { }
 
-  write(message: string): void {
-    console.log(message);
+  write(data: any): void {
+    if (!environment.production) {
+      console.log(data);
+    }
   }
 
-  log(object: Object): void {
-    console.log(object);
+  log(data: any): void {
+    this.write(data);
   }
 }

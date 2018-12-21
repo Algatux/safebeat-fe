@@ -23,20 +23,24 @@ export class LoginBoxComponent implements OnInit {
     }
 
   ngOnInit() {
-    if (this.authentication.isUserAuthenticated()) {
-      this.router.navigate(['']);
-    }
+    this.checkAuthentication();
   }
 
   onSubmit() {
     this.logger.write('attempting account login');
     this.authentication.authenticate(this.credentials);
-    // auth with http request
+    this.checkAuthentication();
   }
 
   onSocialLogin(social: string) {
     this.logger.write(`attemptinbg social ${social} login`);
     this.authentication.tryGoogleSignIn();
+  }
+
+  private checkAuthentication(): void {
+    if (this.authentication.isUserAuthenticated()) {
+      this.router.navigate(['']);
+    }
   }
 
 }
