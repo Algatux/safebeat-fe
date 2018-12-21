@@ -15,10 +15,18 @@
       <form (ngSubmit)="onSubmit()">
         <mat-card-content>
             <mat-form-field class="width-100">
-              <input matInput type="text" placeholder="Username" name="username" [(ngModel)]="credentials.username"/>
+              <input matInput
+                type="text"
+                placeholder="Username"
+                name="username"
+                [(ngModel)]="credentials.username"/>
             </mat-form-field>
             <mat-form-field  class="width-100">
-              <input matInput type="password" placeholder="Password" name="password" [(ngModel)]="credentials.password"/>
+              <input matInput
+                type="password"
+                placeholder="Password"
+                name="password"
+                [(ngModel)]="credentials.password"/>
             </mat-form-field>
             <mat-slide-toggle class="m-t-5" 
             [checked]="credentials.rememberMe"
@@ -28,7 +36,7 @@
 
         <mat-card-actions class="items-centering m-t-15 m-b-15">
           <button mat-raised-button>Login</button>
-          <div class="m-l-40">
+          <div class="m-l-40" *ngIf="false">
               <button mat-raised-button color="accent" (click)="onSocialLogin('google')"><i class="fab fa-google"></i></button>
               <button mat-raised-button color="primary" (click)="onSocialLogin('facebook')"><i class="fab fa-facebook-f"></i></button>
           </div>

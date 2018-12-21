@@ -18,9 +18,9 @@ export class LoginBoxComponent implements OnInit {
     private authentication: AuthenticationService,
     private router: Router,
     private logger: LoggerService
-    ) {
-      this.credentials = new Credentials;
-    }
+  ) {
+    this.credentials = new Credentials;
+  }
 
   ngOnInit() {
     this.checkAuthentication();
@@ -28,12 +28,13 @@ export class LoginBoxComponent implements OnInit {
 
   onSubmit() {
     this.logger.write('attempting account login');
-    this.authentication.authenticate(this.credentials);
-    this.checkAuthentication();
+    this.authentication
+      .authenticate(this.credentials)
+      .add(() => { this.checkAuthentication(); });
   }
 
   onSocialLogin(social: string) {
-    this.logger.write(`attemptinbg social ${social} login`);
+    this.logger.write(`attempting social ${social} login`);
     this.authentication.tryGoogleSignIn();
   }
 

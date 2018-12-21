@@ -1,7 +1,7 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { AuthenticationService } from './Services/Authentication/authentication.service';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { ConfigurationService } from './Configuration/configuration.service';
+
+import { AuthenticationService } from './Services/Authentication/authentication.service';
 
 @Component({
   selector: 'app-root',
@@ -15,14 +15,18 @@ export class AppComponent implements OnInit {
   private isUserAuthenticated: boolean = false;
 
   constructor(
-    private config: ConfigurationService,
     private authentication: AuthenticationService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
-    this.isUserAuthenticated = this.authentication.isUserAuthenticated();
-    this.isSidebarVisible = this.isUserAuthenticated;
+    this.isUserAuthenticated = this.isSidebarVisible = this.authentication.isUserAuthenticated();
+
+    const authSubscription = this.authentication
+      .observeAuthentication()
+      .subscribe(expired => {
+        this.isUserAuthenticated = this.isSidebarVisible = expired;
+      });
 
     if (!this.isUserAuthenticated) {
       this.router.navigate(['/login']);

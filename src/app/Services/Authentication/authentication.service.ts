@@ -6,9 +6,11 @@ import { AuthService, GoogleLoginProvider } from 'angularx-social-login';
 import { Credentials } from './credentials.model';
 import { ConfigurationService } from 'src/app/Configuration/configuration.service';
 import { JwtParserService, Token } from './jwt-parser.service';
+import { Observable, Subscription } from 'rxjs';
 
 const AUTH_TOKEN_KEY = 'authToken';
 const USER_TOKEN_DATA_KEY = 'userTokenData';
+const AUTH_CHECK_POLLING_RATE = 500;
 
 @Injectable({
   providedIn: 'root'
@@ -29,11 +31,23 @@ export class AuthenticationService {
       this.token = this.retrieveSavedToken();
     }
 
-    return this.isTokenExpired();
+    return !this.isTokenExpired();
   }
 
-  public authenticate(credentials: Credentials): void {
-    this.httpClient.post <{token: string}> (
+  public observeAuthentication(): Observable<boolean> {
+    const $this = this;
+    return Observable.create(observer =>  {
+
+      const interval = setInterval(() => {
+        observer.next($this.isUserAuthenticated());
+      }, AUTH_CHECK_POLLING_RATE);
+
+      return () => clearInterval(interval);
+    });
+  }
+
+  public authenticate(credentials: Credentials): Subscription {
+    return this.httpClient.post <{token: string}> (
       `${this.conf.getConfiguration().appBaseUrl}/api/login`,
       credentials.toJson(), {
         headers: new HttpHeaders({'Content-Type': 'application/json'}),
@@ -53,7 +67,7 @@ export class AuthenticationService {
 
   private isTokenExpired(): boolean {
     // must check timezone too
-    return null !== this.token &&  this.token.expiration > new Date();
+    return null === this.token || this.token.expiration <= new Date();
   }
 
   private retrieveSavedToken(): Token | null {
