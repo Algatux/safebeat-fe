@@ -15,6 +15,8 @@ import { LayoutModule } from '@angular/cdk/layout';
 import { SocialLoginModule, AuthServiceConfig, GoogleLoginProvider } from 'angularx-social-login';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { StoreModule } from '@ngrx/store';
+import { authReducer } from '../Services/Authentication/authentication.reducer';
 
 export class ModuleImports {
     public static imports(): Array<any> {
@@ -25,6 +27,8 @@ export class ModuleImports {
             BrowserAnimationsModule,
             HttpClientModule,
             FormsModule,
+
+            StoreModule.forRoot({ auth: authReducer }),
 
             LayoutModule,
             MatToolbarModule,

@@ -7,6 +7,9 @@ import { Credentials } from './credentials.model';
 import { ConfigurationService } from 'src/app/Configuration/configuration.service';
 import { JwtParserService, Token } from './jwt-parser.service';
 import { Observable, Subscription } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { AuthState } from './authentication.reducer';
+import { Login } from './authentication.actions';
 
 const AUTH_TOKEN_KEY = 'authToken';
 const USER_TOKEN_DATA_KEY = 'userTokenData';
@@ -23,7 +26,8 @@ export class AuthenticationService {
     private authService: AuthService,
     private httpClient: HttpClient,
     private conf: ConfigurationService,
-    private jwtParser: JwtParserService
+    private jwtParser: JwtParserService,
+    private store: Store<AuthState>
   ) { }
 
   public isUserAuthenticated(): boolean {
@@ -56,6 +60,7 @@ export class AuthenticationService {
       }
     ).subscribe((resp: HttpResponse<{token: string}>) => {
         this.token = this.jwtParser.parseTokenData(resp.body.token);
+        this.store.dispatch(new Login(this.token));
         localStorage.setItem(AUTH_TOKEN_KEY, resp.body.token);
         localStorage.setItem(USER_TOKEN_DATA_KEY, JSON.stringify(this.token));
     });
