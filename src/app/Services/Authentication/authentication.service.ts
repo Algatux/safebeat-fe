@@ -4,7 +4,7 @@ import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { AuthService, GoogleLoginProvider } from 'angularx-social-login';
 
 import { Credentials } from './credentials.model';
-import { ConfigurationService } from 'src/app/Configuration/configuration.service';
+import { ConfigurationService } from 'src/app/Services/configuration.service';
 import { JwtParserService, Token } from './jwt-parser.service';
 import { Observable, Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
@@ -25,14 +25,31 @@ export class AuthenticationService {
   constructor(
     private authService: AuthService,
     private httpClient: HttpClient,
-    private conf: ConfigurationService,
     private jwtParser: JwtParserService,
     private store: Store<AuthState>
   ) { }
 
+  public static retrieveSavedToken(): Token | null {
+    if (null === localStorage.getItem(AUTH_TOKEN_KEY)) {
+      return null;
+    }
+
+    let userTokenData: string | Token | null = localStorage.getItem(USER_TOKEN_DATA_KEY);
+    userTokenData = null !== userTokenData ? (JSON.parse(userTokenData) as Token) : null;
+
+    if (null === userTokenData) {
+      return null;
+    }
+
+    userTokenData.expiration = new Date(userTokenData.expiration);
+    userTokenData.issued = new Date(userTokenData.issued);
+
+    return userTokenData;
+  }
+
   public isUserAuthenticated(): boolean {
     if (null === this.token) {
-      this.token = this.retrieveSavedToken();
+      this.token = AuthenticationService.retrieveSavedToken();
     }
 
     return !this.isTokenExpired();
@@ -52,7 +69,7 @@ export class AuthenticationService {
 
   public authenticate(credentials: Credentials): Subscription {
     return this.httpClient.post <{token: string}> (
-      `${this.conf.getConfiguration().appBaseUrl}/api/login`,
+      `${ConfigurationService.getConfiguration().appBaseUrl}/api/login`,
       credentials.toJson(), {
         headers: new HttpHeaders({'Content-Type': 'application/json'}),
         observe: 'response',
@@ -73,23 +90,5 @@ export class AuthenticationService {
   private isTokenExpired(): boolean {
     // must check timezone too
     return null === this.token || this.token.expiration <= new Date();
-  }
-
-  private retrieveSavedToken(): Token | null {
-    if (null === localStorage.getItem(AUTH_TOKEN_KEY)) {
-      return null;
-    }
-
-    let userTokenData: string | Token | null = localStorage.getItem(USER_TOKEN_DATA_KEY);
-    userTokenData = null !== userTokenData ? (JSON.parse(userTokenData) as Token) : null;
-
-    if (null === userTokenData) {
-      return null;
-    }
-
-    userTokenData.expiration = new Date(userTokenData.expiration);
-    userTokenData.issued = new Date(userTokenData.issued);
-
-    return userTokenData;
   }
 }

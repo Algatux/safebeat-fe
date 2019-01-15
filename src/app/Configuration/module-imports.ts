@@ -12,35 +12,38 @@ import {
     MatGridListModule,
 } from '@angular/material';
 import { LayoutModule } from '@angular/cdk/layout';
-import { SocialLoginModule, AuthServiceConfig, GoogleLoginProvider } from 'angularx-social-login';
+import { SocialLoginModule} from 'angularx-social-login';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { StoreModule } from '@ngrx/store';
 import { authReducer } from '../Services/Authentication/authentication.reducer';
+import {StoreDevtoolsModule} from '@ngrx/store-devtools';
+import {environment} from '../../environments/environment';
 
-export class ModuleImports {
-    public static imports(): Array<any> {
+export const moduleImports = [
 
-        return [
-            AppRoutingModule,
-            BrowserModule,
-            BrowserAnimationsModule,
-            HttpClientModule,
-            FormsModule,
+    AppRoutingModule,
+    BrowserModule,
+    BrowserAnimationsModule,
+    HttpClientModule,
+    FormsModule,
 
-            StoreModule.forRoot({ auth: authReducer }),
+    StoreModule.forRoot({ auth: authReducer }),
+    StoreDevtoolsModule.instrument({
+        maxAge: 25, // Retains last 25 states
+        logOnly: environment.production, // Restrict extension to log-only mode
+    }),
 
-            LayoutModule,
-            MatToolbarModule,
-            MatSidenavModule,
-            MatCardModule,
-            MatFormFieldModule,
-            MatInputModule,
-            MatButtonModule,
-            MatSlideToggleModule,
-            MatGridListModule,
-            SocialLoginModule
+    LayoutModule,
+    MatToolbarModule,
+    MatSidenavModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatSlideToggleModule,
+    MatGridListModule,
+    SocialLoginModule
 
-        ];
-    }
-}
+];
+

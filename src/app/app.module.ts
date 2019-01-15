@@ -1,8 +1,7 @@
 import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
-import { ModuleImports } from './Configuration/module-imports';
-import { ComponentDeclaration } from './Configuration/component-declaration';
+import { componentDeclarations, moduleImports } from './Configuration';
 import { AuthServiceConfig, GoogleLoginProvider } from 'angularx-social-login';
 
 const authConfig = new AuthServiceConfig([
@@ -13,8 +12,8 @@ const authConfig = new AuthServiceConfig([
 ]);
 
 @NgModule({
-  declarations: ComponentDeclaration.declare(),
-  imports: ModuleImports.imports(),
+  declarations: [ ...componentDeclarations ],
+  imports: [ ...moduleImports ],
   providers: [
     {
       provide: AuthServiceConfig,
