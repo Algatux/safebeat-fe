@@ -2,7 +2,7 @@
 export class Credentials {
     public username: string;
     public password: string;
-    public rememberMe: boolean;
+    public rememberMe?: boolean | null;
 
     toJson(): Object {
         return {

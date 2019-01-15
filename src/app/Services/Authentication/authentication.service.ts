@@ -1,15 +1,13 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 
 import { AuthService, GoogleLoginProvider } from 'angularx-social-login';
 
 import { Credentials } from './credentials.model';
-import { ConfigurationService } from 'src/app/Services/configuration.service';
-import { JwtParserService, Token } from './jwt-parser.service';
-import { Observable, Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { AuthState } from './authentication.reducer';
-import { Login } from './authentication.actions';
+import {AuthenticateCredentials} from '../../Store/Actions/authentication.actions';
+import {Token} from './jwt-parser.service';
+import {AuthState} from '../../Store';
 
 const AUTH_TOKEN_KEY = 'authToken';
 const USER_TOKEN_DATA_KEY = 'userTokenData';
@@ -24,12 +22,10 @@ export class AuthenticationService {
 
   constructor(
     private authService: AuthService,
-    private httpClient: HttpClient,
-    private jwtParser: JwtParserService,
     private store: Store<AuthState>
   ) { }
 
-  public static retrieveSavedToken(): Token | null {
+  public static retrieveStoredToken(): Token | null {
     if (null === localStorage.getItem(AUTH_TOKEN_KEY)) {
       return null;
     }
@@ -49,7 +45,7 @@ export class AuthenticationService {
 
   public isUserAuthenticated(): boolean {
     if (null === this.token) {
-      this.token = AuthenticationService.retrieveSavedToken();
+      this.token = AuthenticationService.retrieveStoredToken();
     }
 
     return !this.isTokenExpired();
@@ -67,20 +63,31 @@ export class AuthenticationService {
     });
   }
 
-  public authenticate(credentials: Credentials): Subscription {
-    return this.httpClient.post <{token: string}> (
-      `${ConfigurationService.getConfiguration().appBaseUrl}/api/login`,
-      credentials.toJson(), {
-        headers: new HttpHeaders({'Content-Type': 'application/json'}),
-        observe: 'response',
-        responseType: 'json'
-      }
-    ).subscribe((resp: HttpResponse<{token: string}>) => {
-        this.token = this.jwtParser.parseTokenData(resp.body.token);
-        this.store.dispatch(new Login(this.token));
-        localStorage.setItem(AUTH_TOKEN_KEY, resp.body.token);
-        localStorage.setItem(USER_TOKEN_DATA_KEY, JSON.stringify(this.token));
-    });
+  public authenticate(credentials: Credentials) {
+
+    const authSubscription = this.store
+        .select<AuthState>((state: AuthState) => state )
+        .subscribe((state: AuthState) => {
+          console.log(2);
+          console.log(state);
+        });
+
+    console.log(1);
+    this.store.dispatch(AuthenticateCredentials.create(credentials));
+
+    // return this.httpClient.post <{token: string}> (
+    //   `${ConfigurationService.getConfiguration().appBaseUrl}/api/login`,
+    //   credentials.toJson(), {
+    //     headers: new HttpHeaders({'Content-Type': 'application/json'}),
+    //     observe: 'response',
+    //     responseType: 'json'
+    //   }
+    // ).subscribe((resp: HttpResponse<{token: string}>) => {
+    //     this.token = this.jwtParser.parseTokenData(resp.body.token);
+    //     this.store.dispatch(new Login(this.token));
+    //     localStorage.setItem(AUTH_TOKEN_KEY, resp.body.token);
+    //     localStorage.setItem(USER_TOKEN_DATA_KEY, JSON.stringify(this.token));
+    // });
   }
 
   public tryGoogleSignIn() {

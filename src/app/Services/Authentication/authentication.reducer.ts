@@ -1,38 +1,23 @@
 
-import { Action } from '@ngrx/store';
-import { AuthActionsTypes, Login, Logout, LoginFromCokie } from './authentication.actions';
-
-export type AuthState = {
-    authenticated: boolean,
-    authToken: string | null,
-    username: string | null,
-    expiration: Date | null,
-    issued: Date | null
-};
+import {AuthActionTypes, AuthenticateCredentials} from '../../Store/Actions/authentication.actions';
+import {AuthState} from '../../Store';
 
 export const initialState: AuthState = {
     authenticated: false,
     authToken: null,
     username: null,
     expiration: null,
-    issued: null
+    issued: null,
+    authenticating: false
 };
 
-export function authReducer(state = initialState, action: Login | Logout | LoginFromCokie) {
+export function authReducer(state = initialState, action: AuthenticateCredentials ) {
   switch (action.type) {
-    case AuthActionsTypes.Login:
-    case AuthActionsTypes.LoginFromCokie:
+    case AuthActionTypes.Authenticate:
         return {
             ...state,
-            authenticated: true,
-            authToken : action.token.raw,
-            username: action.token.username,
-            expiration: action.token.expiration,
-            issued: action.token.issued
+            authenticating: true
         };
-
-    case AuthActionsTypes.Logout:
-      return initialState;
 
     default:
       return initialState;

@@ -28,9 +28,8 @@ export class LoginBoxComponent implements OnInit {
 
   onSubmit() {
     this.logger.write('attempting account login');
-    this.authentication
-      .authenticate(this.credentials)
-      .add(() => { this.checkAuthentication(); });
+    this.authentication.authenticate(this.credentials);
+      // .add(() => { this.checkAuthentication(); });
   }
 
   onSocialLogin(social: string) {
