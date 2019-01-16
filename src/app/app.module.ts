@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
-import { componentDeclarations, moduleImports } from './Configuration';
+import { componentDeclarations, moduleImports } from './configuration';
 import { AuthServiceConfig, GoogleLoginProvider } from 'angularx-social-login';
 
 const authConfig = new AuthServiceConfig([

@@ -16,7 +16,7 @@ import { SocialLoginModule} from 'angularx-social-login';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { StoreModule } from '@ngrx/store';
-import { authReducer } from '../Services/Authentication/authentication.reducer';
+import { authReducer } from '../store/reducers/authentication.reducer';
 import {StoreDevtoolsModule} from '@ngrx/store-devtools';
 import {environment} from '../../environments/environment';
 

@@ -3,11 +3,11 @@ import { Injectable } from '@angular/core';
 import { AuthService, GoogleLoginProvider } from 'angularx-social-login';
 
 import { Credentials } from './credentials.model';
-import { Observable } from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 import { Store } from '@ngrx/store';
-import {AuthenticateCredentials} from '../../Store/Actions/authentication.actions';
+import {AuthenticateCredentials} from '../../store/actions/authentication.actions';
 import {Token} from './jwt-parser.service';
-import {AuthState} from '../../Store';
+import {AuthState} from '../../store';
 
 const AUTH_TOKEN_KEY = 'authToken';
 const USER_TOKEN_DATA_KEY = 'userTokenData';
@@ -63,7 +63,7 @@ export class AuthenticationService {
     });
   }
 
-  public authenticate(credentials: Credentials) {
+  public authenticate(credentials: Credentials): Subscription {
 
     const authSubscription = this.store
         .select<AuthState>((state: AuthState) => state )
@@ -72,9 +72,9 @@ export class AuthenticationService {
           console.log(state);
         });
 
-    console.log(1);
     this.store.dispatch(AuthenticateCredentials.create(credentials));
 
+    return authSubscription;
     // return this.httpClient.post <{token: string}> (
     //   `${ConfigurationService.getConfiguration().appBaseUrl}/api/login`,
     //   credentials.toJson(), {

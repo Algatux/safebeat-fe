@@ -1,23 +1,25 @@
- import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import { Router } from '@angular/router';
 
-import { AuthenticationService } from '../../Services/Authentication/authentication.service';
-import { LoggerService } from '../../Services/logger.service';
-import { Credentials } from '../../Services/Authentication/credentials.model';
+import { AuthenticationService } from '../../services/authentication/authentication.service';
+import { Logger } from '../../services/logger.service';
+import { Credentials } from '../../services/authentication/credentials.model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-login-box',
   templateUrl: './login-box.component.html',
   styleUrls: ['./login-box.component.scss']
 })
-export class LoginBoxComponent implements OnInit {
+export class LoginBoxComponent implements OnInit, OnDestroy {
 
   credentials: Credentials;
+
+  private authSubscription: Subscription | null = null;
 
   constructor(
     private authentication: AuthenticationService,
     private router: Router,
-    private logger: LoggerService
   ) {
     this.credentials = new Credentials;
   }
@@ -27,13 +29,13 @@ export class LoginBoxComponent implements OnInit {
   }
 
   onSubmit() {
-    this.logger.write('attempting account login');
-    this.authentication.authenticate(this.credentials);
+    Logger.write('attempting account login');
+    this.authSubscription = this.authentication.authenticate(this.credentials);
       // .add(() => { this.checkAuthentication(); });
   }
 
   onSocialLogin(social: string) {
-    this.logger.write(`attempting social ${social} login`);
+    Logger.write(`attempting social ${social} login`);
     this.authentication.tryGoogleSignIn();
   }
 
@@ -41,6 +43,10 @@ export class LoginBoxComponent implements OnInit {
     if (this.authentication.isUserAuthenticated()) {
       this.router.navigate(['']);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.authSubscription = null;
   }
 
 }

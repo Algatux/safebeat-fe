@@ -1,15 +1,13 @@
 import { Injectable } from '@angular/core';
 
 import * as moment from 'moment';
-import { LoggerService } from '../logger.service';
+import { Logger } from '../logger.service';
 
 @Injectable({
     providedIn: 'root'
 })
 export class JwtParserService {
-    constructor(
-        private log: LoggerService
-    ) { }
+    constructor() { }
 
     public parseTokenData(rawToken: string): Token {
         const data = JSON.parse(atob(rawToken.split('.')[1]));
@@ -20,8 +18,8 @@ export class JwtParserService {
             raw: rawToken
         };
 
-        this.log.write('Parsed auth token:');
-        this.log.write(token);
+        Logger.write('Parsed auth token:');
+        Logger.write(token);
 
         return token;
     }

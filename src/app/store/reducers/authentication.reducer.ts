@@ -1,6 +1,6 @@
 
-import {AuthActionTypes, AuthenticateCredentials} from '../../Store/Actions/authentication.actions';
-import {AuthState} from '../../Store';
+import {AuthActionTypes, AuthenticateCredentials} from '../actions/authentication.actions';
+import {AuthState} from '..';
 
 export const initialState: AuthState = {
     authenticated: false,

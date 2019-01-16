@@ -1,5 +1,5 @@
 import {Action} from '@ngrx/store';
-import {Credentials} from '../../Services/Authentication/credentials.model';
+import {Credentials} from '../../services/authentication/credentials.model';
 
 export enum AuthActionTypes {
     Authenticate = 'LOGIN_AUTHENTICATE_CREDENTIALS',
