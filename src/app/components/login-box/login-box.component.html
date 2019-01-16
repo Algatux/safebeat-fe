@@ -35,7 +35,7 @@
         </mat-card-content>
 
         <mat-card-actions class="items-centering m-t-15 m-b-15">
-          <button mat-raised-button [disabled]="authSubscription !== null">Login</button>
+          <button mat-raised-button [disabled]="authenticating">Login</button>
           <div class="m-l-40" *ngIf="false">
               <button mat-raised-button color="accent" (click)="onSocialLogin('google')"><i class="fab fa-google"></i></button>
               <button mat-raised-button color="primary" (click)="onSocialLogin('facebook')"><i class="fab fa-facebook-f"></i></button>

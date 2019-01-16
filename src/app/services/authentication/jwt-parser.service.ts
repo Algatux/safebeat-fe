@@ -9,13 +9,13 @@ import { Logger } from '../logger.service';
 export class JwtParserService {
     constructor() { }
 
-    public parseTokenData(rawToken: string): Token {
+    public static parseTokenData(rawToken: string): Token {
         const data = JSON.parse(atob(rawToken.split('.')[1]));
         const token: Token = {
             username: data.username,
             expiration: moment.unix(data.exp).toDate(),
             issued: moment.unix(data.iat).toDate(),
-            raw: rawToken
+            authToken: rawToken
         };
 
         Logger.write('Parsed auth token:');
@@ -29,5 +29,5 @@ export type Token = {
     username: string;
     expiration: Date;
     issued: Date;
-    raw: string;
+    authToken: string;
 };
