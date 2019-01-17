@@ -5,14 +5,14 @@ import {Credentials} from './credentials.model';
 import {Observable} from 'rxjs';
 import {select, Store} from '@ngrx/store';
 import {filter} from 'rxjs/operators';
-import {AuthenticateCredentials} from '../../store/actions';
+import {AuthenticateCredentials, AuthenticatedWithToken} from '../../store/actions';
 import {Token} from './jwt-parser.service';
 import {AuthState, selectAuthState} from '../../store';
 import {AuthStoreStatus} from '../../store/reducers/authentication.reducer';
 
-const AUTH_TOKEN_KEY = 'authToken';
-const USER_TOKEN_DATA_KEY = 'userTokenData';
-const AUTH_CHECK_POLLING_RATE = 500;
+export const AUTH_TOKEN_KEY = 'authToken';
+export const USER_TOKEN_DATA_KEY = 'userTokenData';
+export const AUTH_CHECK_POLLING_RATE = 500;
 
 @Injectable({
     providedIn: 'root'
@@ -24,10 +24,9 @@ export class AuthenticationService {
     constructor(
         private authService: AuthService,
         private store: Store<AuthState>
-    ) {
-    }
+    ) {}
 
-    public static retrieveStoredToken(): Token | null {
+    private retrieveStoredToken(): Token | null {
         if (null === localStorage.getItem(AUTH_TOKEN_KEY)) {
             return null;
         }
@@ -42,12 +41,16 @@ export class AuthenticationService {
         userTokenData.expiration = new Date(userTokenData.expiration);
         userTokenData.issued = new Date(userTokenData.issued);
 
+        if (!this.isTokenExpired()) {
+            this.store.dispatch(new AuthenticatedWithToken(userTokenData));
+        }
+
         return userTokenData;
     }
 
     public isUserAuthenticated(): boolean {
         if (null === this.token) {
-            this.token = AuthenticationService.retrieveStoredToken();
+            this.token = this.retrieveStoredToken();
         }
 
         return !this.isTokenExpired();
@@ -78,22 +81,6 @@ export class AuthenticationService {
                     ].indexOf(state.status)
                 )
             );
-
-        authObserver.subscribe((state: AuthState) => {
-
-            if (AuthStoreStatus.Authenticated === state.status) {
-                localStorage.setItem(AUTH_TOKEN_KEY, state.authToken);
-                localStorage.setItem(USER_TOKEN_DATA_KEY, JSON.stringify(
-                    {
-                        username: state.username,
-                        expiration: state.expiration,
-                        issued: state.issued
-                    }
-                ));
-            }
-
-
-        });
 
         this.store.dispatch(new AuthenticateCredentials(credentials));
 

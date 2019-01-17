@@ -6,6 +6,7 @@ export enum AuthActionType {
     Initialize = 'LOGIN_AUTHENTICATE_INIT',
     Authenticating = 'LOGIN_AUTHENTICATE_CREDENTIALS',
     Authenticated = 'LOGIN_AUTHENTICATE_SUCCESSFUL',
+    AuthenticatedWithToken = 'LOGIN_AUTHENTICATE_SUCCESSFUL_TOKEN',
     AuthenticateFailed = 'LOGIN_AUTHENTICATE_FAILED'
 }
 
@@ -35,6 +36,14 @@ export class AuthenticateCredentials extends AuthenticationActions {
 
 export class Authenticated extends AuthenticationActions {
     readonly type = AuthActionType.Authenticated;
+
+    constructor(public payload: Token) {
+        super(payload);
+    }
+}
+
+export class AuthenticatedWithToken extends AuthenticationActions {
+    readonly type = AuthActionType.AuthenticatedWithToken;
 
     constructor(public payload: Token) {
         super(payload);

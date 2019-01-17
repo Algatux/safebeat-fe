@@ -7,6 +7,8 @@ import {catchError, map, mergeMap} from 'rxjs/operators';
 import {AuthActionType, AuthenticateCredentials, Authenticated, AuthenticateFailed} from '../actions';
 import {ConfigurationService} from '../../services/configuration.service';
 import {JwtParserService} from '../../services/authentication/jwt-parser.service';
+import {Router} from '@angular/router';
+import {AUTH_TOKEN_KEY, USER_TOKEN_DATA_KEY} from '../../services/authentication/authentication.service';
 
 @Injectable()
 export class AuthenticationEffects {
@@ -28,27 +30,31 @@ export class AuthenticationEffects {
                     map((resp: HttpResponse<{ token: string }>) => new Authenticated(JwtParserService.parseTokenData(resp.body.token))),
                     catchError(() => of(new AuthenticateFailed()))
                 )
-
-            //     .subscribe((resp: HttpResponse<{token: string}>) => {
-            //     this.token = this.jwtParser.parseTokenData(resp.body.token);
-            //     this.store.dispatch(new Login(this.token));
-            //     localStorage.setItem(AUTH_TOKEN_KEY, resp.body.token);
-            //     localStorage.setItem(USER_TOKEN_DATA_KEY, JSON.stringify(this.token));
-            // });
-
-
-            // this.http.post('/auth', action.payload).pipe(
-            //     // If successful, dispatch success action with result
-            //     map(data => (new Authenticated({}))),
-            //     // If request fails, dispatch failed action
-            //     catchError(() => of({ type: 'LOGIN_FAILED' }))
-            // )
         )
+    );
+
+    @Effect()
+    authenticated$: Observable<Promise<boolean>> = this.actions$.pipe(
+        ofType(AuthActionType.Authenticated),
+        map((action: Authenticated) => {
+
+            localStorage.setItem(AUTH_TOKEN_KEY, action.payload.authToken);
+            localStorage.setItem(USER_TOKEN_DATA_KEY, JSON.stringify(
+                {
+                    username: action.payload.username,
+                    expiration: action.payload.expiration,
+                    issued: action.payload.issued
+                }
+            ));
+
+            return this.router.navigate(['']);
+        })
     );
 
     constructor(
         private actions$: Actions,
-        private http: HttpClient
+        private http: HttpClient,
+        private router: Router
     ) {
     }
 }

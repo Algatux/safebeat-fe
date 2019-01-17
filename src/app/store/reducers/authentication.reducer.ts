@@ -28,6 +28,7 @@ export function authReducer(state = initialState, action: AuthenticationActions 
             return { ...state, status: AuthStoreStatus.Authenticating };
 
         case AuthActionType.Authenticated:
+        case AuthActionType.AuthenticatedWithToken:
             return {
                 ...state,
                 ... action.payload,
