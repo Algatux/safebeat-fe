@@ -2,13 +2,14 @@ import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders, HttpResponse} from '@angular/common/http';
 import {Action} from '@ngrx/store';
 import {Actions, Effect, ofType} from '@ngrx/effects';
-import {Observable, of} from 'rxjs';
+import {Observable, of, timer} from 'rxjs';
 import {catchError, map, mergeMap} from 'rxjs/operators';
 import {AuthActionType, AuthenticateCredentials, Authenticated, AuthenticateFailed} from '../actions';
 import {ConfigurationService} from '../../services/configuration.service';
 import {JwtParserService} from '../../services/authentication/jwt-parser.service';
 import {Router} from '@angular/router';
-import {AUTH_TOKEN_KEY, USER_TOKEN_DATA_KEY} from '../../services/authentication/authentication.service';
+import {TokenStorageService} from '../../services/authentication/token-storage.service';
+import {Logger} from '../../services/logger.service';
 
 @Injectable()
 export class AuthenticationEffects {
@@ -33,19 +34,17 @@ export class AuthenticationEffects {
         )
     );
 
-    @Effect()
+    @Effect({dispatch: false})
     authenticated$: Observable<Promise<boolean>> = this.actions$.pipe(
         ofType(AuthActionType.Authenticated),
         map((action: Authenticated) => {
 
-            localStorage.setItem(AUTH_TOKEN_KEY, action.payload.authToken);
-            localStorage.setItem(USER_TOKEN_DATA_KEY, JSON.stringify(
-                {
-                    username: action.payload.username,
-                    expiration: action.payload.expiration,
-                    issued: action.payload.issued
-                }
-            ));
+            TokenStorageService.storeToken(action.payload);
+
+            timer(action.payload.expiration)
+                .subscribe((number: number) => {
+                Logger.write(number);
+            });
 
             return this.router.navigate(['']);
         })

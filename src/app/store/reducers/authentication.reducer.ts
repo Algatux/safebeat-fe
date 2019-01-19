@@ -6,7 +6,8 @@ export enum AuthStoreStatus {
     Ready = 'ready',
     Authenticating = 'authenticating',
     Authenticated = 'authenticated',
-    AuthenticateFailed = 'authenticate-failed'
+    AuthenticateFailed = 'authenticate-failed',
+    NotAuthenticated = 'not-authenticated'
 }
 
 export const initialState: AuthState = {

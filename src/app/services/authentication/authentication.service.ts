@@ -9,10 +9,7 @@ import {AuthenticateCredentials, AuthenticatedWithToken} from '../../store/actio
 import {Token} from './jwt-parser.service';
 import {AuthState, selectAuthState} from '../../store';
 import {AuthStoreStatus} from '../../store/reducers/authentication.reducer';
-
-export const AUTH_TOKEN_KEY = 'authToken';
-export const USER_TOKEN_DATA_KEY = 'userTokenData';
-export const AUTH_CHECK_POLLING_RATE = 500;
+import {TokenStorageService} from './token-storage.service';
 
 @Injectable({
     providedIn: 'root'
@@ -20,6 +17,7 @@ export const AUTH_CHECK_POLLING_RATE = 500;
 export class AuthenticationService {
 
     private token: Token | null = null;
+    private authenticatedSubject
 
     constructor(
         private authService: AuthService,
@@ -27,25 +25,13 @@ export class AuthenticationService {
     ) {}
 
     private retrieveStoredToken(): Token | null {
-        if (null === localStorage.getItem(AUTH_TOKEN_KEY)) {
-            return null;
-        }
-
-        let userTokenData: string | Token | null = localStorage.getItem(USER_TOKEN_DATA_KEY);
-        userTokenData = null !== userTokenData ? (JSON.parse(userTokenData) as Token) : null;
-
-        if (null === userTokenData) {
-            return null;
-        }
-
-        userTokenData.expiration = new Date(userTokenData.expiration);
-        userTokenData.issued = new Date(userTokenData.issued);
+        const token = TokenStorageService.getToken();
 
         if (!this.isTokenExpired()) {
-            this.store.dispatch(new AuthenticatedWithToken(userTokenData));
+            this.store.dispatch(new AuthenticatedWithToken(this.token));
         }
 
-        return userTokenData;
+        return token;
     }
 
     public isUserAuthenticated(): boolean {
@@ -54,18 +40,6 @@ export class AuthenticationService {
         }
 
         return !this.isTokenExpired();
-    }
-
-    public observeAuthentication(): Observable<boolean> {
-        const $this = this;
-        return Observable.create(observer => {
-
-            const interval = setInterval(() => {
-                observer.next($this.isUserAuthenticated());
-            }, AUTH_CHECK_POLLING_RATE);
-
-            return () => clearInterval(interval);
-        });
     }
 
     public authenticate(credentials: Credentials): Observable<AuthState> {

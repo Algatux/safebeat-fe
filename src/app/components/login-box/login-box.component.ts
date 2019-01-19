@@ -38,9 +38,10 @@ export class LoginBoxComponent implements OnInit, OnDestroy {
     onSubmit() {
         Logger.write('attempting account login');
 
-        this.authSubscription = this.authentication.authenticate(this.credentials)
+        this.authSubscription = this.authentication
+            .authenticate(this.credentials)
             .subscribe((state: AuthState) => {
-                console.log('AuthState.status: ' + state.status);
+                Logger.write('AuthState.status: ' + state.status);
 
                 this.authenticating = AuthStoreStatus.Authenticating === state.status;
             });
