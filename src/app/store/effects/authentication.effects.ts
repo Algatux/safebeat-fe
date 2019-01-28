@@ -1,59 +1,82 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders, HttpResponse} from '@angular/common/http';
-import {Action} from '@ngrx/store';
+import {HttpResponse} from '@angular/common/http';
 import {Actions, Effect, ofType} from '@ngrx/effects';
-import {Observable, of, timer} from 'rxjs';
+import {Observable, of} from 'rxjs';
 import {catchError, map, mergeMap} from 'rxjs/operators';
-import {AuthActionType, AuthenticateCredentials, Authenticated, AuthenticateFailed} from '../actions';
-import {ConfigurationService} from '../../services/configuration.service';
+import {
+    AuthActionType,
+    AuthenticateCredentials,
+    Authenticated,
+    AuthenticateFailed, AuthenticateRefreshTokenObtained,
+    AuthenticationActions,
+    AuthenticationInit
+} from '../actions';
 import {JwtParserService} from '../../services/authentication/jwt-parser.service';
 import {Router} from '@angular/router';
 import {TokenStorageService} from '../../services/authentication/token-storage.service';
-import {Logger} from '../../services/logger.service';
+import {SecurityApi} from '../../services/api/security.api';
 
 @Injectable()
 export class AuthenticationEffects {
 
     @Effect()
-    authentication$: Observable<Action> = this.actions$.pipe(
+    authentication$: Observable<AuthenticationActions> = this.actions$.pipe(
         ofType(AuthActionType.Authenticating),
         mergeMap((action: AuthenticateCredentials) =>
 
-                this.http.post <{ token: string }>(
-                    `${ConfigurationService.getConfiguration().appBaseUrl}/login`,
-                    action.payload.toJson(),
-                    {
-                        headers: new HttpHeaders({'Content-Type': 'application/json'}),
-                        observe: 'response',
-                        responseType: 'json'
-                    }
-                ).pipe(
-                    map((resp: HttpResponse<{ token: string }>) => new Authenticated(JwtParserService.parseTokenData(resp.body.token))),
+            this.securityApi
+                .login(action.payload)
+                .pipe(
+                    map((resp: HttpResponse<{ token: string }>) => {
+
+                            const token = JwtParserService.parseTokenData(resp.body.token);
+                            TokenStorageService.storeToken(token);
+
+                            return new Authenticated(token);
+                        }
+                    ),
                     catchError(() => of(new AuthenticateFailed()))
                 )
         )
     );
 
     @Effect({dispatch: false})
-    authenticated$: Observable<Promise<boolean>> = this.actions$.pipe(
+    authenticated$: Observable<AuthenticationActions> = this.actions$.pipe(
         ofType(AuthActionType.Authenticated),
-        map((action: Authenticated) => {
+        mergeMap(() => {
 
-            TokenStorageService.storeToken(action.payload);
+                this.router.navigate(['']);
 
-            timer(action.payload.expiration)
-                .subscribe((number: number) => {
-                Logger.write(number);
-            });
+                return this.securityApi
+                    .getRefreshToken()
+                    .pipe(
+                        map((resp: HttpResponse<{ refreshToken: string }>) => {
+                                return new AuthenticateRefreshTokenObtained(resp.body);
+                            },
+                            catchError(() => of(new AuthenticateFailed()))
+                        )
+                    );
+            }
+        )
+    );
 
-            return this.router.navigate(['']);
+    @Effect()
+    authenticationLogout$: Observable<AuthenticationActions> = this.actions$.pipe(
+        ofType(AuthActionType.AuthenticationLogout),
+        map(() => {
+
+            TokenStorageService.clear();
+
+            this.router.navigate(['/login']);
+
+            return new AuthenticationInit();
         })
     );
 
     constructor(
         private actions$: Actions,
-        private http: HttpClient,
-        private router: Router
+        private router: Router,
+        private securityApi: SecurityApi
     ) {
     }
 }

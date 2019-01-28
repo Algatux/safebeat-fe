@@ -33,4 +33,9 @@ export class TokenStorageService {
             }
         ));
     }
+
+    static clear() {
+        localStorage.removeItem(AUTH_TOKEN_KEY);
+        localStorage.removeItem(USER_TOKEN_DATA_KEY);
+    }
 }

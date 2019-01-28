@@ -4,7 +4,7 @@ import {Router} from '@angular/router';
 import {AuthenticationService} from '../../services/authentication/authentication.service';
 import {Logger} from '../../services/logger.service';
 import {Credentials} from '../../services/authentication/credentials.model';
-import {Observable, Subscription} from 'rxjs';
+import {Subscription} from 'rxjs';
 import {Store} from '@ngrx/store';
 import {AuthState} from '../../store';
 import {AuthenticationInit} from '../../store/actions';
@@ -20,7 +20,7 @@ export class LoginBoxComponent implements OnInit, OnDestroy {
     credentials: Credentials;
     authenticating: boolean;
 
-    private authSubscription: Subscription | null = null;
+    private authSubscription: Subscription;
 
     constructor(
         private authentication: AuthenticationService,
@@ -39,12 +39,13 @@ export class LoginBoxComponent implements OnInit, OnDestroy {
         Logger.write('attempting account login');
 
         this.authSubscription = this.authentication
-            .authenticate(this.credentials)
-            .subscribe((state: AuthState) => {
-                Logger.write('AuthState.status: ' + state.status);
+            .isAuthenticationInState(AuthStoreStatus.Authenticating)
+            .subscribe((authenticated: boolean) => {
 
-                this.authenticating = AuthStoreStatus.Authenticating === state.status;
+                this.authenticating = authenticated;
             });
+
+        this.authentication.authenticate(this.credentials);
     }
 
     onSocialLogin(social: string) {
