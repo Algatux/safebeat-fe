@@ -19,6 +19,7 @@ export class TokenStorageService {
 
         token.expiration = new Date(token.expiration);
         token.issued = new Date(token.issued);
+        token.authToken = localStorage.getItem(AUTH_TOKEN_KEY);
 
         return token;
     }

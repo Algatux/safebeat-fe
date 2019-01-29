@@ -36,7 +36,7 @@ export function authReducer(state = initialState, action: AuthenticationActions 
                 status: AuthStoreStatus.Authenticated,
             };
 
-        case AuthActionType.AuthenticateFailed:
+        case AuthActionType.AuthenticationFailed:
             return { ...state, status: AuthStoreStatus.AuthenticateFailed };
 
         default:

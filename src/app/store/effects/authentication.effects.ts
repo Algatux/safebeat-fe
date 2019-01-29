@@ -20,7 +20,7 @@ import {SecurityApi} from '../../services/api/security.api';
 export class AuthenticationEffects {
 
     @Effect()
-    authentication$: Observable<AuthenticationActions> = this.actions$.pipe(
+    onAuthentication$: Observable<AuthenticationActions> = this.actions$.pipe(
         ofType(AuthActionType.Authenticating),
         mergeMap((action: AuthenticateCredentials) =>
 
@@ -40,8 +40,8 @@ export class AuthenticationEffects {
         )
     );
 
-    @Effect({dispatch: false})
-    authenticated$: Observable<AuthenticationActions> = this.actions$.pipe(
+    @Effect()
+    onAuthenticated$: Observable<AuthenticationActions> = this.actions$.pipe(
         ofType(AuthActionType.Authenticated),
         mergeMap(() => {
 
@@ -50,9 +50,8 @@ export class AuthenticationEffects {
                 return this.securityApi
                     .getRefreshToken()
                     .pipe(
-                        map((resp: HttpResponse<{ refreshToken: string }>) => {
-                                return new AuthenticateRefreshTokenObtained(resp.body);
-                            },
+                        map(
+                            (resp: HttpResponse<{ refreshToken: string }>) => new AuthenticateRefreshTokenObtained(resp.body),
                             catchError(() => of(new AuthenticateFailed()))
                         )
                     );
@@ -61,8 +60,8 @@ export class AuthenticationEffects {
     );
 
     @Effect()
-    authenticationLogout$: Observable<AuthenticationActions> = this.actions$.pipe(
-        ofType(AuthActionType.AuthenticationLogout),
+    onAuthenticationLogout$: Observable<AuthenticationActions> = this.actions$.pipe(
+        ofType(AuthActionType.Logout),
         map(() => {
 
             TokenStorageService.clear();

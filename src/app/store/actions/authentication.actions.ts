@@ -3,13 +3,14 @@ import {Credentials} from '../../services/authentication/credentials.model';
 import {Token} from '../../services/authentication/jwt-parser.service';
 
 export enum AuthActionType {
-    Initialize = 'LOGIN_AUTHENTICATE_INIT',
-    Authenticating = 'LOGIN_AUTHENTICATE_CREDENTIALS',
-    Authenticated = 'LOGIN_AUTHENTICATE_SUCCESSFUL',
-    AuthenticatedRefreshTokenObtained = 'LOGIN_AUTHENTICATE_REFRESH_TOKEN_OBTAINED',
-    AuthenticatedWithToken = 'LOGIN_AUTHENTICATE_SUCCESSFUL_TOKEN',
-    AuthenticateFailed = 'LOGIN_AUTHENTICATE_FAILED',
-    AuthenticationLogout = 'LOGIN_AUTHENTICATE_LOGOUT',
+    Initialize = 'AUTH_INIT',
+    Authenticating = 'AUTH_CREDENTIALS',
+    Authenticated = 'AUTH_SUCCESSFUL',
+    RefreshTokenObtained = 'AUTH_REFRESH_TOKEN_OBTAINED',
+    AuthTokenNeedsRefresh = 'AUTH_TOKEN_NEEDS_REFRESH',
+    AuthenticatedWithToken = 'AUTH_SUCCESSFUL_TOKEN',
+    AuthenticationFailed = 'AUTH_FAILED',
+    Logout = 'AUTH_LOGOUT',
 }
 
 export abstract class AuthenticationActions implements Action {
@@ -23,7 +24,7 @@ export class AuthenticationInit implements AuthenticationActions {
 }
 
 export class AuthenticateFailed implements AuthenticationActions {
-    readonly type = AuthActionType.AuthenticateFailed;
+    readonly type = AuthActionType.AuthenticationFailed;
 }
 
 export class AuthenticateCredentials extends AuthenticationActions {
@@ -35,7 +36,7 @@ export class AuthenticateCredentials extends AuthenticationActions {
 }
 
 export class AuthenticationLogout implements AuthenticationActions {
-    readonly type = AuthActionType.AuthenticationLogout;
+    readonly type = AuthActionType.Logout;
 }
 
 export class Authenticated extends AuthenticationActions {
@@ -55,9 +56,13 @@ export class AuthenticatedWithToken extends AuthenticationActions {
 }
 
 export class AuthenticateRefreshTokenObtained extends AuthenticationActions {
-    readonly type = AuthActionType.AuthenticatedRefreshTokenObtained;
+    readonly type = AuthActionType.RefreshTokenObtained;
 
     constructor(public payload: {refreshToken: string}) {
         super(payload);
     }
+}
+
+export class AuthenticationTokenRefreshNeeded extends AuthenticationActions {
+    readonly type = AuthActionType.AuthTokenNeedsRefresh;
 }

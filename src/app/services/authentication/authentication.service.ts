@@ -1,12 +1,12 @@
 import {Injectable} from '@angular/core';
 import {select, Store} from '@ngrx/store';
-import {Observable, Observer, timer} from 'rxjs';
+import {Observable, Observer, Subscription, timer} from 'rxjs';
 
 import {AuthService, GoogleLoginProvider} from 'angularx-social-login';
 import {subMinutes} from 'date-fns';
 
 import {Credentials} from './credentials.model';
-import {AuthenticateCredentials, AuthenticatedWithToken, AuthenticationLogout} from '../../store/actions';
+import {AuthenticateCredentials, AuthenticatedWithToken, AuthenticationLogout, AuthenticationTokenRefreshNeeded} from '../../store/actions';
 import {Token} from './jwt-parser.service';
 import {AuthState, selectAuthState} from '../../store';
 import {AuthStoreStatus} from '../../store/reducers/authentication.reducer';
@@ -20,28 +20,39 @@ export class AuthenticationService {
 
     private authenticated: boolean = false;
     private token: Token | null = null;
+
     private authObserver: Observable<AuthState>;
     private authExpirationObserver: Observable<number>;
+
+    private authenticatedStatusObservable: Observable<boolean>;
+    private authenticatedStatusSubscription: Subscription;
 
     constructor(
         private authService: AuthService,
         private store: Store<AuthState>
     ) {
-        this.authObserver = this.store.pipe(select<AuthState>(selectAuthState));
         this.init();
     }
 
     private init() {
-        this
-            .isAuthenticationInState(AuthStoreStatus.Authenticated)
+        this.authObserver = this.store.pipe(select<AuthState>(selectAuthState));
+
+        this.authenticatedStatusObservable = this
+            .isAuthenticationInState(AuthStoreStatus.Authenticated);
+
+        this.authenticatedStatusSubscription = this.authenticatedStatusObservable
             .subscribe((authenticated: boolean) => {
+
+                Logger.write('Authenticated = ' + (authenticated ? 'yes' : 'no'));
+
                 this.authenticated = authenticated;
 
-                if (this.authenticated && null !== this.token) {
+                if (this.authenticated && null === this.token) {
                     this.retrieveStoredToken(false);
                     this.authExpirationObserver = timer(subMinutes(this.token.expiration, 1));
                     this.authExpirationObserver.subscribe(() => {
                         Logger.write('Token is expiring');
+                        this.store.dispatch(new AuthenticationTokenRefreshNeeded());
                     });
                 }
 
@@ -97,10 +108,6 @@ export class AuthenticationService {
     }
 
     public getToken(): Token | null {
-
-        this.retrieveStoredToken(false);
-
-        console.log(this.token.authToken);
 
         return this.token;
     }
