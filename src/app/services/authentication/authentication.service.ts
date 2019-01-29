@@ -19,6 +19,7 @@ import {Logger} from '../logger.service';
 export class AuthenticationService {
 
     private authenticated: boolean = false;
+    private rememberMe: boolean = false;
     private token: Token | null = null;
 
     private authObserver: Observable<AuthState>;
@@ -90,12 +91,13 @@ export class AuthenticationService {
     }
 
     public authenticate(credentials: Credentials): void {
+        this.rememberMe = credentials.rememberMe;
         this.store.dispatch(new AuthenticateCredentials(credentials));
     }
 
     public logout(): void {
         this.token = null;
-        this.store.dispatch(new AuthenticationLogout());
+        this.store.dispatch(new AuthenticationLogout({deleteRefresh: !this.rememberMe}));
     }
 
     public tryGoogleSignIn() {
@@ -110,5 +112,10 @@ export class AuthenticationService {
     public getToken(): Token | null {
 
         return this.token;
+    }
+
+    public getRefreshToken(): string | null {
+
+        return TokenStorageService.getRefreshToken();
     }
 }

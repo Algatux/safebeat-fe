@@ -35,8 +35,13 @@ export class AuthenticateCredentials extends AuthenticationActions {
     }
 }
 
-export class AuthenticationLogout implements AuthenticationActions {
+export class AuthenticationLogout extends AuthenticationActions {
     readonly type = AuthActionType.Logout;
+
+
+    constructor(public payload: {deleteRefresh: boolean}) {
+        super(payload);
+    }
 }
 
 export class Authenticated extends AuthenticationActions {

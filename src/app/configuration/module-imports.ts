@@ -21,6 +21,7 @@ import {StoreDevtoolsModule} from '@ngrx/store-devtools';
 import {environment} from '../../environments/environment';
 import {EffectsModule} from '@ngrx/effects';
 import {AuthenticationEffects} from '../store/effects/authentication.effects';
+import {DeviceDetectorModule} from 'ngx-device-detector';
 
 export const moduleImports = [
 
@@ -36,6 +37,8 @@ export const moduleImports = [
         maxAge: 25, // Retains last 25 states
         logOnly: environment.production, // Restrict extension to log-only mode
     }),
+
+    DeviceDetectorModule.forRoot(),
 
     LayoutModule,
     MatToolbarModule,

@@ -9,7 +9,7 @@ import {
     Authenticated,
     AuthenticateFailed, AuthenticateRefreshTokenObtained,
     AuthenticationActions,
-    AuthenticationInit
+    AuthenticationInit, AuthenticationLogout
 } from '../actions';
 import {JwtParserService} from '../../services/authentication/jwt-parser.service';
 import {Router} from '@angular/router';
@@ -42,7 +42,7 @@ export class AuthenticationEffects {
 
     @Effect()
     onAuthenticated$: Observable<AuthenticationActions> = this.actions$.pipe(
-        ofType(AuthActionType.Authenticated),
+        ofType(AuthActionType.Authenticated, AuthActionType.AuthenticatedWithToken),
         mergeMap(() => {
 
                 this.router.navigate(['']);
@@ -60,11 +60,46 @@ export class AuthenticationEffects {
     );
 
     @Effect()
+    onTokenRefreshNeeded$: Observable<AuthenticationActions> = this.actions$.pipe(
+        ofType(AuthActionType.AuthTokenNeedsRefresh),
+        mergeMap(() => {
+
+                return this.securityApi
+                    .getFreshToken()
+                    .pipe(
+                        map(
+                            (resp: HttpResponse<{ token: string }>) => {
+
+                                const token = JwtParserService.parseTokenData(resp.body.token);
+                                TokenStorageService.storeToken(token);
+
+                                return new Authenticated(token);
+                            },
+                            catchError(() => of(new AuthenticateFailed()))
+                        )
+                    );
+            }
+        )
+    );
+
+    @Effect({dispatch: false})
+    onRefreshTokenObtained$: Observable<boolean> = this.actions$.pipe(
+        ofType(AuthActionType.RefreshTokenObtained),
+        mergeMap((action: AuthenticateRefreshTokenObtained) => {
+
+                TokenStorageService.storeRefreshToken(action.payload.refreshToken);
+
+                return of(true);
+            }
+        )
+    );
+
+    @Effect()
     onAuthenticationLogout$: Observable<AuthenticationActions> = this.actions$.pipe(
         ofType(AuthActionType.Logout),
-        map(() => {
+        map((action: AuthenticationLogout) => {
 
-            TokenStorageService.clear();
+            TokenStorageService.clear(action.payload.deleteRefresh);
 
             this.router.navigate(['/login']);
 
@@ -76,6 +111,5 @@ export class AuthenticationEffects {
         private actions$: Actions,
         private router: Router,
         private securityApi: SecurityApi
-    ) {
-    }
+    ) {}
 }

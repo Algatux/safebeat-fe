@@ -1,6 +1,7 @@
 import {Token} from './jwt-parser.service';
 
 export const AUTH_TOKEN_KEY = 'authToken';
+export const AUTH_REFRESH_TOKEN_KEY = 'refreshToken';
 export const USER_TOKEN_DATA_KEY = 'userTokenData';
 
 export class TokenStorageService {
@@ -35,8 +36,22 @@ export class TokenStorageService {
         ));
     }
 
-    static clear() {
+    static storeRefreshToken(token: string) {
+        localStorage.setItem(AUTH_REFRESH_TOKEN_KEY, token);
+    }
+
+    static getRefreshToken(): string | null {
+
+        return localStorage.getItem(AUTH_REFRESH_TOKEN_KEY);
+    }
+
+    static clear(refreshToken: boolean) {
         localStorage.removeItem(AUTH_TOKEN_KEY);
         localStorage.removeItem(USER_TOKEN_DATA_KEY);
+
+        if (refreshToken) {
+            localStorage.removeItem(AUTH_REFRESH_TOKEN_KEY);
+        }
     }
+
 }
