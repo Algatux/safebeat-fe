@@ -6,8 +6,7 @@ export enum AuthStoreStatus {
     Ready = 'ready',
     Authenticating = 'authenticating',
     Authenticated = 'authenticated',
-    AuthenticateFailed = 'authenticate-failed',
-    NotAuthenticated = 'not-authenticated'
+    AuthenticateFailed = 'authenticate-failed'
 }
 
 export const initialState: AuthState = {
@@ -15,7 +14,8 @@ export const initialState: AuthState = {
     username: null,
     expiration: null,
     issued: null,
-    status: AuthStoreStatus.Empty
+    status: AuthStoreStatus.Empty,
+    refreshToken: false
 };
 
 export function authReducer(state = initialState, action: AuthenticationActions ) {
@@ -35,7 +35,11 @@ export function authReducer(state = initialState, action: AuthenticationActions 
                 ... action.payload,
                 status: AuthStoreStatus.Authenticated,
             };
-
+        case AuthActionType.RefreshTokenObtained:
+            return {
+                ... state,
+                refreshToken: true
+            };
         case AuthActionType.AuthenticationFailed:
             return { ...state, status: AuthStoreStatus.AuthenticateFailed };
 

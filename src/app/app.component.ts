@@ -3,6 +3,7 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {AuthenticationService} from './services/authentication/authentication.service';
 import {AuthStoreStatus} from './store/reducers/authentication.reducer';
 import {Subscription} from 'rxjs';
+import {AutoAuthenticationService} from './services/authentication/auto-authentication/auto-authentication.service';
 
 @Component({
     selector: 'app-root',
@@ -15,7 +16,12 @@ export class AppComponent implements OnInit, OnDestroy {
 
     private authSubscription: Subscription;
 
-    constructor(private authentication: AuthenticationService) {}
+    constructor(
+        private authentication: AuthenticationService,
+        private autoAuthentication: AutoAuthenticationService
+    ) {
+        this.init();
+    }
 
     ngOnInit(): void {
         this.authSubscription = this.authentication
@@ -30,4 +36,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.authSubscription = null;
     }
 
+    private init() {
+        this.autoAuthentication.authenticate();
+    }
 }

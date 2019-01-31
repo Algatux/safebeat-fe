@@ -3,7 +3,7 @@ import {Router} from '@angular/router';
 
 import {AuthenticationService} from '../../services/authentication/authentication.service';
 import {Logger} from '../../services/logger.service';
-import {Credentials} from '../../services/authentication/credentials.model';
+import {Credentials} from '../../services/authentication/model/credentials.model';
 import {Subscription} from 'rxjs';
 import {Store} from '@ngrx/store';
 import {AuthState} from '../../store';
@@ -31,8 +31,8 @@ export class LoginBoxComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.checkAuthentication();
         this.store.dispatch(new AuthenticationInit());
+        this.checkAuthentication();
     }
 
     onSubmit() {

@@ -1,16 +1,14 @@
 import {HttpClient, HttpHeaders, HttpResponse} from '@angular/common/http';
 
 import {SafebeatApi} from './safebeat.api';
-import {Credentials} from '../authentication/credentials.model';
+import {Credentials} from '../authentication/model/credentials.model';
 import {Observable} from 'rxjs';
 import {Injectable} from '@angular/core';
 import {DeviceDetectorService} from 'ngx-device-detector';
 
 import {AuthenticationService} from '../authentication/authentication.service';
 
-@Injectable({
-    providedIn: 'root'
-})
+@Injectable()
 export class SecurityApi extends SafebeatApi {
 
     constructor(
@@ -49,10 +47,7 @@ export class SecurityApi extends SafebeatApi {
             this.route('/refresh-token'),
             this.getDeviceInfo(),
             {
-                headers: new HttpHeaders({
-                    'Content-Type': 'application/json',
-                    'X-Jwt-Auth': `Bearer ${this.auth.getToken().authToken}`
-                }),
+                headers: this.getStandardHeaders(),
                 observe: 'response',
                 responseType: 'json'
             }
@@ -68,10 +63,7 @@ export class SecurityApi extends SafebeatApi {
                 refreshToken: this.auth.getRefreshToken()
             },
             {
-                headers: new HttpHeaders({
-                    'Content-Type': 'application/json',
-                    'X-Jwt-Auth': `Bearer ${this.auth.getToken().authToken}`
-                }),
+                headers: this.getStandardHeaders(),
                 observe: 'response',
                 responseType: 'json'
             }

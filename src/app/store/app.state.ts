@@ -9,7 +9,8 @@ export type AuthState = {
     username: string | null,
     expiration: Date | null,
     issued: Date | null,
-    status: AuthStoreStatus
+    status: AuthStoreStatus,
+    refreshToken: boolean
 };
 
 export const selectAuthState = (state: SafebeatState) => state.auth;

@@ -1,4 +1,4 @@
-import {Token} from './jwt-parser.service';
+import {Token} from '../model/auth-token.model';
 
 export const AUTH_TOKEN_KEY = 'authToken';
 export const AUTH_REFRESH_TOKEN_KEY = 'refreshToken';
@@ -7,22 +7,10 @@ export const USER_TOKEN_DATA_KEY = 'userTokenData';
 export class TokenStorageService {
 
     public static getToken(): Token | null {
-        if (null === localStorage.getItem(AUTH_TOKEN_KEY)) {
-            return null;
-        }
 
-        let token: string | Token | null = localStorage.getItem(USER_TOKEN_DATA_KEY);
-        token = null !== token ? (JSON.parse(token) as Token) : null;
+        const rawToken: string | null = localStorage.getItem(AUTH_TOKEN_KEY);
 
-        if (null === token) {
-            return null;
-        }
-
-        token.expiration = new Date(token.expiration);
-        token.issued = new Date(token.issued);
-        token.authToken = localStorage.getItem(AUTH_TOKEN_KEY);
-
-        return token;
+        return null !== rawToken ? new Token(rawToken) : null;
     }
 
     static storeToken(token: Token) {
