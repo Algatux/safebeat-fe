@@ -7,14 +7,16 @@ import {
     AuthActionType,
     AuthenticateCredentials,
     Authenticated,
-    AuthenticateFailed, AuthenticateRefreshTokenObtained,
+    AuthenticateFailed,
+    AuthenticateRefreshTokenObtained,
     AuthenticationActions,
     AuthenticationInit, AuthenticationLogout
 } from '../actions';
-import {JwtParserService} from '../../services/authentication/jwt-parser.service';
 import {Router} from '@angular/router';
-import {TokenStorageService} from '../../services/authentication/token-storage.service';
+import {TokenStorageService} from '../../services/authentication/token/token-storage.service';
 import {SecurityApi} from '../../services/api/security.api';
+import {Token} from '../../services/authentication/model/auth-token.model';
+import {AuthenticationService} from '../../services/authentication/authentication.service';
 
 @Injectable()
 export class AuthenticationEffects {
@@ -29,7 +31,7 @@ export class AuthenticationEffects {
                 .pipe(
                     map((resp: HttpResponse<{ token: string }>) => {
 
-                            const token = JwtParserService.parseTokenData(resp.body.token);
+                            const token = new Token(resp.body.token);
                             TokenStorageService.storeToken(token);
 
                             return new Authenticated(token);
@@ -43,7 +45,9 @@ export class AuthenticationEffects {
     @Effect()
     onAuthenticated$: Observable<AuthenticationActions> = this.actions$.pipe(
         ofType(AuthActionType.Authenticated, AuthActionType.AuthenticatedWithToken),
-        mergeMap(() => {
+        mergeMap((action: Authenticated) => {
+
+                this.auth.setToken(action.payload);
 
                 this.router.navigate(['']);
 
@@ -70,7 +74,7 @@ export class AuthenticationEffects {
                         map(
                             (resp: HttpResponse<{ token: string }>) => {
 
-                                const token = JwtParserService.parseTokenData(resp.body.token);
+                                const token = new Token(resp.body.token);
                                 TokenStorageService.storeToken(token);
 
                                 return new Authenticated(token);
@@ -87,6 +91,7 @@ export class AuthenticationEffects {
         ofType(AuthActionType.RefreshTokenObtained),
         mergeMap((action: AuthenticateRefreshTokenObtained) => {
 
+                this.auth.setRefreshToken(action.payload.refreshToken);
                 TokenStorageService.storeRefreshToken(action.payload.refreshToken);
 
                 return of(true);
@@ -110,6 +115,7 @@ export class AuthenticationEffects {
     constructor(
         private actions$: Actions,
         private router: Router,
+        private auth: AuthenticationService,
         private securityApi: SecurityApi
     ) {}
 }

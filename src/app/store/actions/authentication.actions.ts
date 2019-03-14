@@ -1,12 +1,13 @@
 import {Action} from '@ngrx/store';
-import {Credentials} from '../../services/authentication/credentials.model';
-import {Token} from '../../services/authentication/jwt-parser.service';
+import {Credentials} from '../../services/authentication/model/credentials.model';
+import {Token} from '../../services/authentication/model/auth-token.model';
 
 export enum AuthActionType {
     Initialize = 'AUTH_INIT',
     Authenticating = 'AUTH_CREDENTIALS',
     Authenticated = 'AUTH_SUCCESSFUL',
     RefreshTokenObtained = 'AUTH_REFRESH_TOKEN_OBTAINED',
+    RefreshTokenNotNeeded = 'AUTH_REFRESH_TOKEN_NOT_NEEDED',
     AuthTokenNeedsRefresh = 'AUTH_TOKEN_NEEDS_REFRESH',
     AuthenticatedWithToken = 'AUTH_SUCCESSFUL_TOKEN',
     AuthenticationFailed = 'AUTH_FAILED',
@@ -66,6 +67,10 @@ export class AuthenticateRefreshTokenObtained extends AuthenticationActions {
     constructor(public payload: {refreshToken: string}) {
         super(payload);
     }
+}
+
+export class AuthenticateRefreshTokenNotNeeded implements AuthenticationActions {
+    readonly  type = AuthActionType.RefreshTokenNotNeeded;
 }
 
 export class AuthenticationTokenRefreshNeeded extends AuthenticationActions {

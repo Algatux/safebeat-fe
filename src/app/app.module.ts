@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 import { componentDeclarations, moduleImports } from './configuration';
 import { AuthServiceConfig, GoogleLoginProvider } from 'angularx-social-login';
+import {SecurityApi} from './services/api/security.api';
 
 const authConfig = new AuthServiceConfig([
   {
@@ -18,7 +19,8 @@ const authConfig = new AuthServiceConfig([
     {
       provide: AuthServiceConfig,
       useFactory: () => authConfig
-    }
+    },
+    SecurityApi
   ],
   bootstrap: [AppComponent]
 })

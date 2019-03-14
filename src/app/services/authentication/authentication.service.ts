@@ -5,13 +5,13 @@ import {Observable, Observer, Subscription, timer} from 'rxjs';
 import {AuthService, GoogleLoginProvider} from 'angularx-social-login';
 import {subMinutes} from 'date-fns';
 
-import {Credentials} from './credentials.model';
-import {AuthenticateCredentials, AuthenticatedWithToken, AuthenticationLogout, AuthenticationTokenRefreshNeeded} from '../../store/actions';
-import {Token} from './jwt-parser.service';
+import {Credentials} from './model/credentials.model';
+import {AuthenticateCredentials, AuthenticationLogout, AuthenticationTokenRefreshNeeded} from '../../store/actions';
 import {AuthState, selectAuthState} from '../../store';
 import {AuthStoreStatus} from '../../store/reducers/authentication.reducer';
-import {TokenStorageService} from './token-storage.service';
 import {Logger} from '../logger.service';
+import {Token} from './model/auth-token.model';
+import {environment} from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
@@ -21,9 +21,11 @@ export class AuthenticationService {
     private authenticated: boolean = false;
     private rememberMe: boolean = false;
     private token: Token | null = null;
+    private refreshToken: string | null = null;
 
     private authObserver: Observable<AuthState>;
     private authExpirationObserver: Observable<number>;
+    private authExpirationSubscriber: Subscription;
 
     private authenticatedStatusObservable: Observable<boolean>;
     private authenticatedStatusSubscription: Subscription;
@@ -33,6 +35,15 @@ export class AuthenticationService {
         private store: Store<AuthState>
     ) {
         this.init();
+    }
+
+    setToken(token: Token): void {
+        this.token = token;
+        this.setAuthenticationSubscriber();
+    }
+
+    setRefreshToken(token: string): void {
+        this.refreshToken = token;
     }
 
     private init() {
@@ -45,30 +56,33 @@ export class AuthenticationService {
             .subscribe((authenticated: boolean) => {
 
                 Logger.write('Authenticated = ' + (authenticated ? 'yes' : 'no'));
-
                 this.authenticated = authenticated;
 
-                if (this.authenticated && null === this.token) {
-                    this.retrieveStoredToken(false);
-                    this.authExpirationObserver = timer(subMinutes(this.token.expiration, 1));
-                    this.authExpirationObserver.subscribe(() => {
-                        Logger.write('Token is expiring');
-                        this.store.dispatch(new AuthenticationTokenRefreshNeeded());
-                    });
+                if (this.authenticated && this.token instanceof Token && 'string' === typeof this.refreshToken) {
+                    this.setAuthenticationSubscriber();
                 }
 
             });
     }
 
-    public retrieveStoredToken(logIn: boolean): void {
-        if (null === this.token) {
-            this.token = TokenStorageService.getToken();
+    private setAuthenticationSubscriber(): void {
+        Logger.write('Setting auth token expiration observer');
+
+        if (this.authExpirationSubscriber instanceof Subscription) {
+            this.authExpirationSubscriber.unsubscribe();
         }
 
-        if (logIn && !this.isTokenExpired()) {
-            Logger.write('Authenticating with token');
-            this.store.dispatch(new AuthenticatedWithToken(this.token));
-        }
+        this.authExpirationObserver = timer(
+            subMinutes(
+                this.token.expiration,
+                environment.preAuthExpirationTtl / 60
+            )
+        );
+
+        this.authExpirationSubscriber = this.authExpirationObserver.subscribe(() => {
+            Logger.write('Token is expiring, trying refresh');
+            this.store.dispatch(new AuthenticationTokenRefreshNeeded());
+        });
     }
 
     public isAuthenticationInState(state: string): Observable<boolean> {
@@ -83,11 +97,8 @@ export class AuthenticationService {
     }
 
     public isUserAuthenticated(): boolean {
-        if (null === this.token) {
-            this.retrieveStoredToken(true);
-        }
 
-        return !this.isTokenExpired();
+        return this.token instanceof Token && !this.token.isExpired();
     }
 
     public authenticate(credentials: Credentials): void {
@@ -104,11 +115,6 @@ export class AuthenticationService {
         this.authService.signIn(GoogleLoginProvider.PROVIDER_ID);
     }
 
-    private isTokenExpired(): boolean {
-        // must check timezone too
-        return null === this.token || this.token.expiration <= new Date();
-    }
-
     public getToken(): Token | null {
 
         return this.token;
@@ -116,6 +122,6 @@ export class AuthenticationService {
 
     public getRefreshToken(): string | null {
 
-        return TokenStorageService.getRefreshToken();
+        return this.refreshToken;
     }
 }
