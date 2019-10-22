@@ -10,4 +10,10 @@ export class Logger {
     }
   }
 
+  static condWrite(data: any, mustWrite: boolean): void {
+    if ( true === mustWrite) {
+      this.write(data);
+    }
+  }
+
 }

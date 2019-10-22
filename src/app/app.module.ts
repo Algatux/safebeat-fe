@@ -4,12 +4,14 @@ import { AppComponent } from './app.component';
 import { componentDeclarations, moduleImports } from './configuration';
 import { AuthServiceConfig, GoogleLoginProvider } from 'angularx-social-login';
 import {SecurityApi} from './services/api/security.api';
+import {WalletApi} from './services/api/wallet.api';
+import {AutoAuthenticationService} from './services/authentication/auto-authentication/auto-authentication.service';
 
 const authConfig = new AuthServiceConfig([
-  {
-    id: GoogleLoginProvider.PROVIDER_ID,
-    provider: new GoogleLoginProvider('970526898552-s62qmk8teifj1poo11m7s1glhcolkgdh.apps.googleusercontent.com')
-  }
+  // {
+  //   id: GoogleLoginProvider.PROVIDER_ID,
+  //   provider: new GoogleLoginProvider('970526898552-s62qmk8teifj1poo11m7s1glhcolkgdh.apps.googleusercontent.com')
+  // }
 ]);
 
 @NgModule({
@@ -20,7 +22,9 @@ const authConfig = new AuthServiceConfig([
       provide: AuthServiceConfig,
       useFactory: () => authConfig
     },
-    SecurityApi
+    AutoAuthenticationService,
+    SecurityApi,
+    WalletApi,
   ],
   bootstrap: [AppComponent]
 })

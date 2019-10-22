@@ -55,7 +55,7 @@ export class SecurityApi extends SafebeatApi {
     }
 
     getFreshToken(): Observable<HttpResponse<{ token: string }>> {
-
+        console.log('ref token :', this.auth.getRefreshToken());
         return this.http.post<{ token: string }>(
             this.route('/new-token'),
             {

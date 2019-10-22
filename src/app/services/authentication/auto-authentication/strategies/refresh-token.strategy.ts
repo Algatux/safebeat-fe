@@ -2,32 +2,39 @@ import {AutoAuthenticationInterface} from './strategy.interface';
 import {AuthenticationService} from '../../authentication.service';
 import {Store} from '@ngrx/store';
 import {AuthState} from '../../../../store';
-import {AuthenticatedWithToken, AuthenticateRefreshTokenObtained, AuthenticationTokenRefreshNeeded} from '../../../../store/actions';
+import {AuthenticateRefreshTokenObtained, AuthenticationTokenRefreshNeeded} from '../../../../store/actions';
 import {TokenStorageService} from '../../token/token-storage.service';
 import {Logger} from '../../../logger.service';
+import {Token} from '../../model/auth-token.model';
+import {reference} from '@angular/core/src/render3';
 
 export class RefreshTokenStrategy implements AutoAuthenticationInterface {
 
-    constructor(
-        private store: Store<AuthState>
-    ) {}
+  constructor(
+    private store: Store<AuthState>,
+    private authenticationService: AuthenticationService
+  ) {
+  }
 
-    canAuthenticate(): boolean {
+  canAuthenticate(): boolean {
 
-        const authToken = TokenStorageService.getToken();
-        const refreshToken = TokenStorageService.getRefreshToken();
+    const authToken = TokenStorageService.getToken();
+    const refreshToken = TokenStorageService.getRefreshToken();
 
-        return null !== refreshToken && (null === authToken || true === authToken.isExpired());
+    return null !== refreshToken && authToken instanceof Token && true === authToken.isExpired();
 
-    }
+  }
 
-    authenticate() {
-        Logger.write('Auto authenticating with stored refreshToken');
+  authenticate() {
+    Logger.write('Auto authenticating with stored refreshToken');
 
-        const refreshToken = TokenStorageService.getRefreshToken();
+    const refreshToken: string = TokenStorageService.getRefreshToken();
+    console.log(refreshToken);
+    this.authenticationService.setToken(TokenStorageService.getToken());
+    this.authenticationService.setRefreshToken(refreshToken);
 
-        this.store.dispatch(new AuthenticateRefreshTokenObtained({refreshToken}));
-        this.store.dispatch(new AuthenticationTokenRefreshNeeded(refreshToken));
-    }
+    this.store.dispatch(new AuthenticateRefreshTokenObtained({refreshToken}));
+    this.store.dispatch(new AuthenticationTokenRefreshNeeded(refreshToken));
+  }
 
 }

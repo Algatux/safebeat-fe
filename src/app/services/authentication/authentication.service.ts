@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {select, Store} from '@ngrx/store';
-import {Observable, Observer, Subscription, timer} from 'rxjs';
+import {BehaviorSubject, Observable, Observer, Subscription, timer} from 'rxjs';
 
 import {AuthService, GoogleLoginProvider} from 'angularx-social-login';
 import {subMinutes} from 'date-fns';
@@ -14,114 +14,118 @@ import {Token} from './model/auth-token.model';
 import {environment} from '../../../environments/environment';
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root'
 })
 export class AuthenticationService {
 
-    private authenticated: boolean = false;
-    private rememberMe: boolean = false;
-    private token: Token | null = null;
-    private refreshToken: string | null = null;
+  private authenticated: boolean = false;
+  private rememberMe: boolean = false;
+  private token: Token | null = null;
+  private refreshToken: string | null = null;
 
-    private authObserver: Observable<AuthState>;
-    private authExpirationObserver: Observable<number>;
-    private authExpirationSubscriber: Subscription;
+  private authObserver: Observable<AuthState>;
+  private authExpirationObserver: Observable<number>;
+  private authExpirationSubscriber: Subscription;
 
-    private authenticatedStatusObservable: Observable<boolean>;
-    private authenticatedStatusSubscription: Subscription;
+  private authenticatedStatusObservable: Observable<boolean>;
+  private authenticatedStatusSubscription: Subscription;
 
-    constructor(
-        private authService: AuthService,
-        private store: Store<AuthState>
-    ) {
-        this.init();
-    }
+  constructor(
+    private authService: AuthService,
+    private store: Store<AuthState>
+  ) {
+    console.log('auth service init');
+    this.init();
+  }
 
-    setToken(token: Token): void {
-        this.token = token;
-        this.setAuthenticationSubscriber();
-    }
+  setToken(token: Token): void {
+    this.token = token;
+    this.setAuthenticationSubscriber();
+  }
 
-    setRefreshToken(token: string): void {
-        this.refreshToken = token;
-    }
+  setRefreshToken(token: string): void {
+    this.refreshToken = token;
+  }
 
-    private init() {
-        this.authObserver = this.store.pipe(select<AuthState>(selectAuthState));
+  private init() {
+    this.authObserver = this.store.pipe(select<AuthState>(selectAuthState));
 
-        this.authenticatedStatusObservable = this
-            .isAuthenticationInState(AuthStoreStatus.Authenticated);
+    this.authenticatedStatusObservable = this
+      .isAuthenticationInState(AuthStoreStatus.Authenticated);
 
-        this.authenticatedStatusSubscription = this.authenticatedStatusObservable
-            .subscribe((authenticated: boolean) => {
+    this.authenticatedStatusSubscription = this.authenticatedStatusObservable
+      .subscribe((authenticated: boolean) => {
 
-                Logger.write('Authenticated = ' + (authenticated ? 'yes' : 'no'));
-                this.authenticated = authenticated;
-
-                if (this.authenticated && this.token instanceof Token && 'string' === typeof this.refreshToken) {
-                    this.setAuthenticationSubscriber();
-                }
-
-            });
-    }
-
-    private setAuthenticationSubscriber(): void {
-        Logger.write('Setting auth token expiration observer');
-
-        if (this.authExpirationSubscriber instanceof Subscription) {
-            this.authExpirationSubscriber.unsubscribe();
-        }
-
-        this.authExpirationObserver = timer(
-            subMinutes(
-                this.token.expiration,
-                environment.preAuthExpirationTtl / 60
-            )
+        Logger.condWrite(
+          'Auth observer -> Authenticated = ' + (authenticated ? 'yes' : 'no'),
+          authenticated !== this.authenticated
         );
+        this.authenticated = authenticated;
 
-        this.authExpirationSubscriber = this.authExpirationObserver.subscribe(() => {
-            Logger.write('Token is expiring, trying refresh');
-            this.store.dispatch(new AuthenticationTokenRefreshNeeded());
-        });
+        // if (this.authenticated && this.token instanceof Token && 'string' === typeof this.refreshToken) {
+        //   this.setAuthenticationSubscriber();
+        // }
+
+      });
+  }
+
+  private setAuthenticationSubscriber(): void {
+    if (this.authExpirationSubscriber instanceof Subscription) {
+      return;
     }
 
-    public isAuthenticationInState(state: string): Observable<boolean> {
+    Logger.write('Setting auth token expiration observer');
 
-        return Observable.create((observer: Observer<boolean>) => {
+    this.authExpirationObserver = timer(
+      subMinutes(
+        this.token.expiration,
+        5 // environment.preAuthExpirationTtl / 60
+      )
+    );
 
-            this.authObserver.subscribe((storeState: AuthState) => {
-                observer.next(storeState.status === state);
-            });
-        });
+    this.authExpirationSubscriber = this.authExpirationObserver.subscribe(() => {
+      Logger.write('Token is expiring, trying refresh');
+      this.store.dispatch(new AuthenticationTokenRefreshNeeded());
+    });
+  }
 
-    }
+  public isAuthenticationInState(state: string): BehaviorSubject<boolean> {
 
-    public isUserAuthenticated(): boolean {
+    return Observable.create((observer: Observer<boolean>) => {
 
-        return this.token instanceof Token && !this.token.isExpired();
-    }
+      this.authObserver.subscribe((storeState: AuthState) => {
+        observer.next(storeState.status === state);
+      });
+    });
 
-    public authenticate(credentials: Credentials): void {
-        this.rememberMe = credentials.rememberMe;
-        this.store.dispatch(new AuthenticateCredentials(credentials));
-    }
+  }
 
-    public logout(): void {
-        this.token = null;
-        this.store.dispatch(new AuthenticationLogout({deleteRefresh: !this.rememberMe}));
-    }
+  public isUserAuthenticated(): boolean {
 
-    public tryGoogleSignIn() {
-        this.authService.signIn(GoogleLoginProvider.PROVIDER_ID);
-    }
+    return this.token instanceof Token && !this.token.isExpired();
+  }
 
-    public getToken(): Token | null {
+  public authenticate(credentials: Credentials): void {
+    this.rememberMe = credentials.rememberMe;
+    this.store.dispatch(new AuthenticateCredentials(credentials));
+  }
 
-        return this.token;
-    }
+  public logout(): void {
+    this.token = null;
+    this.store.dispatch(new AuthenticationLogout({deleteRefresh: !this.rememberMe}));
+  }
 
-    public getRefreshToken(): string | null {
+  public tryGoogleSignIn() {
+    this.authService.signIn(GoogleLoginProvider.PROVIDER_ID);
+  }
 
-        return this.refreshToken;
-    }
+  public getToken(): Token | null {
+
+    return this.token;
+  }
+
+  public getRefreshToken(): string | null {
+
+    return this.refreshToken;
+  }
 }

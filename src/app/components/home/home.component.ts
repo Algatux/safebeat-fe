@@ -1,4 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
+import {WalletApi} from '../../services/api/wallet.api';
+import {HttpResponse} from '@angular/common/http';
+import {Wallet, WalletList} from '../../models/api/wallet.model';
 
 @Component({
   selector: 'app-home',
@@ -7,9 +10,20 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HomeComponent implements OnInit {
 
-  constructor() { }
+  private walletList: Wallet[] | null = null;
+
+  constructor(private walletApi: WalletApi) {
+  }
 
   ngOnInit() {
+    console.log(this.walletList);
+    this
+      .walletApi
+      .list()
+      .subscribe((response: HttpResponse<WalletList>) => {
+        this.walletList = response.body.wallets;
+        console.log(this.walletList);
+      });
   }
 
 }
