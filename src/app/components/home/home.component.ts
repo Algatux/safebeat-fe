@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {WalletApi} from '../../services/api/wallet.api';
 import {HttpResponse} from '@angular/common/http';
 import {Wallet, WalletList} from '../../models/api/wallet.model';
@@ -8,14 +8,17 @@ import {Wallet, WalletList} from '../../models/api/wallet.model';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, AfterViewInit {
 
   private walletList: Wallet[] | null = null;
 
-  constructor(private walletApi: WalletApi) {
-  }
+  constructor(
+    private walletApi: WalletApi
+  ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {}
+
+  ngAfterViewInit(): void {
     console.log(this.walletList);
     this
       .walletApi

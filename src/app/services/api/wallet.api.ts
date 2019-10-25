@@ -16,7 +16,7 @@ export class WalletApi extends SafebeatApi {
         protected http: HttpClient,
         protected auth: AuthenticationService
     ) {
-        super(http, auth);
+        super(http);
     }
 
     list(): Observable<HttpResponse<WalletList>> {
@@ -24,7 +24,7 @@ export class WalletApi extends SafebeatApi {
         return this.http.get<WalletList>(
             this.route('/wallet'),
             {
-                headers: this.getStandardHeaders(),
+                headers: this.getStandardHeaders(this.auth.getAuthToken()),
                 observe: 'response',
                 responseType: 'json'
             }

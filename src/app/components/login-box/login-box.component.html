@@ -8,7 +8,7 @@
         <mat-card-subtitle>Effettua il login</mat-card-subtitle>
       </mat-card-header>
 
-      <img mat-card-image 
+      <img mat-card-image
         src="https://viraldazed.com/wp-content/uploads/2017/08/transplant-organs-pig-to-human.jpeg"
       />
 
@@ -28,17 +28,17 @@
                 name="password"
                 [(ngModel)]="credentials.password"/>
             </mat-form-field>
-            <mat-slide-toggle class="m-t-5" 
+            <mat-slide-toggle class="m-t-5"
             [checked]="credentials.rememberMe"
-            (change)="credentials.rememberMe=$event.checked" 
+            (change)="credentials.rememberMe=$event.checked"
             name="rememberMe">Remember me!</mat-slide-toggle>
         </mat-card-content>
 
         <mat-card-actions class="items-centering m-t-15 m-b-15">
           <button mat-raised-button [disabled]="authenticating">Login</button>
           <div class="m-l-40" *ngIf="false">
-              <button mat-raised-button color="accent" (click)="onSocialLogin('google')"><i class="fab fa-google"></i></button>
-              <button mat-raised-button color="primary" (click)="onSocialLogin('facebook')"><i class="fab fa-facebook-f"></i></button>
+<!--              <button mat-raised-button color="accent" (click)="onSocialLogin('google')"><i class="fab fa-google"></i></button>-->
+<!--              <button mat-raised-button color="primary" (click)="onSocialLogin('facebook')"><i class="fab fa-facebook-f"></i></button>-->
           </div>
         </mat-card-actions>
       </form>

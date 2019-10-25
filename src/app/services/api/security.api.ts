@@ -6,67 +6,64 @@ import {Observable} from 'rxjs';
 import {Injectable} from '@angular/core';
 import {DeviceDetectorService} from 'ngx-device-detector';
 
-import {AuthenticationService} from '../authentication/authentication.service';
-
 @Injectable()
 export class SecurityApi extends SafebeatApi {
 
-    constructor(
-        protected http: HttpClient,
-        protected auth: AuthenticationService,
-        private device: DeviceDetectorService
-    ) {
-        super(http, auth);
-    }
+  constructor(
+    protected http: HttpClient,
+    private device: DeviceDetectorService,
+  ) {
+    super(http);
+  }
 
-    private getDeviceInfo(): Object {
+  login(credentials: Credentials): Observable<HttpResponse<{ token: string }>> {
 
-        return {
-            device: this.device.device,
-            osVersion: this.device.os_version,
-            browser: this.device.browser
-        };
-    }
+    return this.http.post<{ token: string }>(
+      this.route('/login'),
+      credentials.toJson(),
+      {
+        headers: new HttpHeaders({'Content-Type': 'application/json'}),
+        observe: 'response',
+        responseType: 'json'
+      }
+    );
+  }
 
-    login(credentials: Credentials): Observable<HttpResponse<{ token: string }>> {
+  getRefreshToken(authToken: string): Observable<HttpResponse<{ refreshToken: string }>> {
 
-        return this.http.post<{ token: string }>(
-            this.route('/login'),
-            credentials.toJson(),
-            {
-                headers: new HttpHeaders({'Content-Type': 'application/json'}),
-                observe: 'response',
-                responseType: 'json'
-            }
-        );
-    }
+    return this.http.post<{ refreshToken: string }>(
+      this.route('/refresh-token'),
+      this.getDeviceInfo(),
+      {
+        headers: this.getStandardHeaders(authToken),
+        observe: 'response',
+        responseType: 'json'
+      }
+    );
+  }
 
-    getRefreshToken(): Observable<HttpResponse<{ refreshToken: string }>> {
+  getFreshToken(authToken: string, refreshToken: string): Observable<HttpResponse<{ token: string }>> {
+    console.log('ref token :', refreshToken);
+    return this.http.post<{ token: string }>(
+      this.route('/new-token'),
+      {
+        ...this.getDeviceInfo(),
+        refreshToken: refreshToken,
+      },
+      {
+        headers: this.getStandardHeaders(authToken),
+        observe: 'response',
+        responseType: 'json'
+      }
+    );
+  }
 
-        return this.http.post<{ refreshToken: string }>(
-            this.route('/refresh-token'),
-            this.getDeviceInfo(),
-            {
-                headers: this.getStandardHeaders(),
-                observe: 'response',
-                responseType: 'json'
-            }
-        );
-    }
+  private getDeviceInfo(): Object {
 
-    getFreshToken(): Observable<HttpResponse<{ token: string }>> {
-        console.log('ref token :', this.auth.getRefreshToken());
-        return this.http.post<{ token: string }>(
-            this.route('/new-token'),
-            {
-                ... this.getDeviceInfo(),
-                refreshToken: this.auth.getRefreshToken()
-            },
-            {
-                headers: this.getStandardHeaders(),
-                observe: 'response',
-                responseType: 'json'
-            }
-        );
-    }
+    return {
+      device: this.device.device,
+      osVersion: this.device.os_version,
+      browser: this.device.browser
+    };
+  }
 }

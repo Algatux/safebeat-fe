@@ -15,7 +15,7 @@ export class AutoAuthenticationService {
     private auth: AuthenticationService,
     private store: Store<AuthState>
   ) {
-    this.strategies.push(new ValidTokenStrategy(store));
+    this.strategies.push(new ValidTokenStrategy(store, auth));
     this.strategies.push(new RefreshTokenStrategy(store, auth));
   }
 
