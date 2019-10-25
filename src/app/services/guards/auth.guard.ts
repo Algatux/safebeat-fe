@@ -15,7 +15,6 @@ export class AuthGuard implements CanActivate {
     ) {}
 
     canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-        Logger.write('AuthGuard#canActivate called');
 
         if (false === this.authentication.isUserAuthenticated()) {
             Logger.write('User not authenticated, redirecting to login');

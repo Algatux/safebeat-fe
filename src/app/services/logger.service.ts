@@ -1,4 +1,5 @@
 import { environment } from 'src/environments/environment';
+import {formatDate} from '@angular/common';
 
 export class Logger {
 
@@ -6,7 +7,12 @@ export class Logger {
 
   static write(data: any): void {
     if (!environment.production) {
-      console.log(data);
+      const time = formatDate(new Date(), 'yyyy-MM-dd HH:mm:ss', 'en');
+      if (typeof data === 'string') {
+        console.log(`[${time}] ${data}`);
+      } else {
+        console.log(`[${time}]`, data);
+      }
     }
   }
 

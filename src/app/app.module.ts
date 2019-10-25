@@ -6,6 +6,8 @@ import { AuthServiceConfig, GoogleLoginProvider } from 'angularx-social-login';
 import {SecurityApi} from './services/api/security.api';
 import {WalletApi} from './services/api/wallet.api';
 import {AutoAuthenticationService} from './services/authentication/auto-authentication/auto-authentication.service';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 
 const authConfig = new AuthServiceConfig([
   // {
@@ -16,7 +18,7 @@ const authConfig = new AuthServiceConfig([
 
 @NgModule({
   declarations: [ ...componentDeclarations ],
-  imports: [ ...moduleImports ],
+  imports: [...moduleImports],
   providers: [
     {
       provide: AuthServiceConfig,

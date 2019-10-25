@@ -3,7 +3,7 @@ import {select, Store} from '@ngrx/store';
 import {BehaviorSubject, Observable, Observer, Subscription, timer} from 'rxjs';
 
 import {AuthService, GoogleLoginProvider} from 'angularx-social-login';
-import {subMinutes} from 'date-fns';
+import {subMinutes, subSeconds} from 'date-fns';
 
 import {Credentials} from './model/credentials.model';
 import {
@@ -19,6 +19,7 @@ import {SecurityApi} from '../api/security.api';
 import {HttpResponse} from '@angular/common/http';
 import {TokenStorageService} from './token/token-storage.service';
 import {Router} from '@angular/router';
+import {environment} from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -69,32 +70,27 @@ export class AuthenticationService {
           authenticated !== this.authenticated
         );
         this.authenticated = authenticated;
-
-        // if (this.authenticated && this.token instanceof Token && 'string' === typeof this.refreshToken) {
-        //   this.setAuthenticationSubscriber();
-        // }
-
       });
   }
 
   private setAuthenticationSubscriber(): void {
-    if (this.authExpirationSubscriber instanceof Subscription) {
-      return;
-    }
-
     Logger.write('Setting auth token expiration observer');
-
     this.authExpirationObserver = timer(
-      subMinutes(
+      subSeconds(
         this.token.expiration,
-        5 // environment.preAuthExpirationTtl / 60
+        environment.preAuthExpirationTtl
       )
     );
 
-    this.authExpirationSubscriber = this.authExpirationObserver.subscribe(() => {
-      Logger.write('Token is expiring, trying refresh');
-      this.refreshAuthToken();
-    });
+    if (this.authExpirationSubscriber instanceof Subscription) {
+      this.authExpirationSubscriber.unsubscribe();
+    }
+
+    this.authExpirationSubscriber = this.authExpirationObserver
+      .subscribe(() => {
+        Logger.write('Token is expiring, trying refresh');
+        this.refreshAuthToken();
+      });
   }
 
   public refreshAuthToken() {
@@ -102,6 +98,11 @@ export class AuthenticationService {
       .getFreshToken(this.token.authToken, this.refreshToken)
       .subscribe(
         (response: HttpResponse<{ token: string }>) => {
+          Logger.write([
+            'old : ' + this.token.authToken,
+            'new : ' + response.body.token,
+            'are different' + (this.token.authToken !== response.body.token) ? 'Y' : 'N',
+          ]);
           this.storeAuthToken(response.body.token);
           this.store.dispatch(new Authenticated(this.token));
         }
@@ -146,7 +147,7 @@ export class AuthenticationService {
   }
 
   private storeAuthToken(authToken: string) {
-    this.token = new Token(authToken);
+    this.setToken(new Token(authToken));
     TokenStorageService.storeToken(this.token);
   }
 

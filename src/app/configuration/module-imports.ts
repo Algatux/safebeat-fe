@@ -22,6 +22,7 @@ import {environment} from '../../environments/environment';
 import {EffectsModule} from '@ngrx/effects';
 import {AuthenticationEffects} from '../store/effects/authentication.effects';
 import {DeviceDetectorModule} from 'ngx-device-detector';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 
 export const moduleImports = [
 
@@ -49,7 +50,8 @@ export const moduleImports = [
     MatButtonModule,
     MatSlideToggleModule,
     MatGridListModule,
-    SocialLoginModule
+    SocialLoginModule,
+    MatProgressBarModule
 
 ];
 
