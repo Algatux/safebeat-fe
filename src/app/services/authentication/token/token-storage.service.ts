@@ -34,10 +34,10 @@ export class TokenStorageService {
     }
 
     static clear(refreshToken: boolean) {
-        localStorage.removeItem(AUTH_TOKEN_KEY);
         localStorage.removeItem(USER_TOKEN_DATA_KEY);
 
         if (refreshToken) {
+            localStorage.removeItem(AUTH_TOKEN_KEY);
             localStorage.removeItem(AUTH_REFRESH_TOKEN_KEY);
         }
     }

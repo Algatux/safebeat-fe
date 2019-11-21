@@ -28,14 +28,6 @@ export class AuthenticateFailed implements AuthenticationActions {
     readonly type = AuthActionType.AuthenticationFailed;
 }
 
-export class AuthenticateCredentials extends AuthenticationActions {
-    readonly type = AuthActionType.Authenticating;
-
-    constructor(public payload: Credentials) {
-        super(payload);
-    }
-}
-
 export class AuthenticationLogout extends AuthenticationActions {
     readonly type = AuthActionType.Logout;
 
@@ -64,13 +56,9 @@ export class AuthenticatedWithToken extends AuthenticationActions {
 export class AuthenticateRefreshTokenObtained extends AuthenticationActions {
     readonly type = AuthActionType.RefreshTokenObtained;
 
-    constructor(public payload: {refreshToken: string}) {
+    constructor(public payload: string) {
         super(payload);
     }
-}
-
-export class AuthenticateRefreshTokenNotNeeded implements AuthenticationActions {
-    readonly  type = AuthActionType.RefreshTokenNotNeeded;
 }
 
 export class AuthenticationTokenRefreshNeeded extends AuthenticationActions {

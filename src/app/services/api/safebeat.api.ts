@@ -10,19 +10,18 @@ import {Injectable} from '@angular/core';
 export abstract class SafebeatApi {
 
     protected constructor(
-        protected http: HttpClient,
-        protected auth: AuthenticationService
+        protected http: HttpClient
     ) {}
 
     protected route(url: string): string {
         return `${ConfigurationService.getConfiguration().appBaseUrl}${url}`;
     }
 
-    protected getStandardHeaders(): HttpHeaders {
+    protected getStandardHeaders(authToken: string): HttpHeaders {
 
         return new HttpHeaders({
             'Content-Type': 'application/json',
-            'X-Jwt-Auth': `Bearer ${this.auth.getToken().authToken}`
+            'X-Jwt-Auth': `Bearer ${authToken}`
         });
     }
 }

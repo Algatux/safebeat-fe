@@ -1,42 +1,38 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, OnInit} from '@angular/core';
 
 import {AuthenticationService} from './services/authentication/authentication.service';
 import {AuthStoreStatus} from './store/reducers/authentication.reducer';
-import {Subscription} from 'rxjs';
 import {AutoAuthenticationService} from './services/authentication/auto-authentication/auto-authentication.service';
+import {Store} from '@ngrx/store';
+import {AuthState} from './store';
+import {AuthenticationInit} from './store/actions';
 
 @Component({
-    selector: 'app-root',
-    templateUrl: './app.component.html',
-    styleUrls: ['./app.component.scss']
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
-    isUserAuthenticated: boolean = false;
+  isUserAuthenticated: boolean = false;
 
-    private authSubscription: Subscription;
+  constructor(
+    private store: Store<AuthState>,
+    private authentication: AuthenticationService,
+    private autoAuthentication: AutoAuthenticationService
+  ) {}
 
-    constructor(
-        private authentication: AuthenticationService,
-        private autoAuthentication: AutoAuthenticationService
-    ) {
-        this.init();
-    }
+  ngOnInit(): void {
+    this.store.dispatch(new AuthenticationInit());
+    this.authentication
+      .isAuthenticationInState(AuthStoreStatus.Authenticated)
+      .subscribe((state: boolean) => {
+        this.isUserAuthenticated = state;
+      });
+    this.autoAuthentication.authenticate();
+  }
 
-    ngOnInit(): void {
-        this.authSubscription = this.authentication
-            .isAuthenticationInState(AuthStoreStatus.Authenticated)
-            .subscribe((authenticated: boolean) => {
-                this.isUserAuthenticated = authenticated;
-            });
-    }
+  ngAfterViewInit(): void {}
 
-    ngOnDestroy(): void {
-        console.log('destroy');
-        this.authSubscription = null;
-    }
-
-    private init() {
-        this.autoAuthentication.authenticate();
-    }
+  ngOnDestroy(): void {}
 }

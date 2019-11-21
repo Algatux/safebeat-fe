@@ -4,23 +4,29 @@ import { AppComponent } from './app.component';
 import { componentDeclarations, moduleImports } from './configuration';
 import { AuthServiceConfig, GoogleLoginProvider } from 'angularx-social-login';
 import {SecurityApi} from './services/api/security.api';
+import {WalletApi} from './services/api/wallet.api';
+import {AutoAuthenticationService} from './services/authentication/auto-authentication/auto-authentication.service';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 
 const authConfig = new AuthServiceConfig([
-  {
-    id: GoogleLoginProvider.PROVIDER_ID,
-    provider: new GoogleLoginProvider('970526898552-s62qmk8teifj1poo11m7s1glhcolkgdh.apps.googleusercontent.com')
-  }
+  // {
+  //   id: GoogleLoginProvider.PROVIDER_ID,
+  //   provider: new GoogleLoginProvider('970526898552-s62qmk8teifj1poo11m7s1glhcolkgdh.apps.googleusercontent.com')
+  // }
 ]);
 
 @NgModule({
   declarations: [ ...componentDeclarations ],
-  imports: [ ...moduleImports ],
+  imports: [...moduleImports],
   providers: [
     {
       provide: AuthServiceConfig,
       useFactory: () => authConfig
     },
-    SecurityApi
+    AutoAuthenticationService,
+    SecurityApi,
+    WalletApi,
   ],
   bootstrap: [AppComponent]
 })

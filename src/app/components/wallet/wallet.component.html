@@ -1,0 +1,9 @@
+
+<p *ngIf="wallet">
+  wallet numero {{ walletId }}
+    {{ wallet.title }}
+</p>
+
+<mat-progress-bar mode="indeterminate" *ngIf="!wallet"></mat-progress-bar>
+
+

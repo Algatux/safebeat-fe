@@ -6,23 +6,30 @@ import {AuthState} from '../../../store';
 import {Injectable} from '@angular/core';
 import {RefreshTokenStrategy} from './strategies/refresh-token.strategy';
 
-@Injectable({
-    providedIn: 'root'
-})
+@Injectable()
 export class AutoAuthenticationService {
 
-    private strategies: AutoAuthenticationInterface[] = [];
+  private strategies: AutoAuthenticationInterface[] = [];
 
-    constructor(private auth: AuthenticationService, private store: Store<AuthState>) {
-        this.strategies.push(new ValidTokenStrategy(this.store));
-        this.strategies.push(new RefreshTokenStrategy(this.store));
-    }
+  constructor(
+    private auth: AuthenticationService,
+    private store: Store<AuthState>
+  ) {
+    this.strategies.push(new ValidTokenStrategy(store, auth));
+    this.strategies.push(new RefreshTokenStrategy(store, auth));
+  }
 
-    authenticate() {
-        this.strategies.forEach((strategy: AutoAuthenticationInterface) => {
-            if (strategy.canAuthenticate()) {
-                strategy.authenticate();
-            }
-        });
-    }
+  authenticate() {
+    this
+      .strategies
+      .forEach(
+        (strategy: AutoAuthenticationInterface) => {
+          if (strategy.canAuthenticate()) {
+            strategy.authenticate();
+
+            return;
+          }
+        }
+      );
+  }
 }

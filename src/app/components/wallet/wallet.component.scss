@@ -1,0 +1,11 @@
+:host {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+.loading-spinner {
+  top: 50%;
+  left: 50%;
+  margin-left: -50%;
+}
